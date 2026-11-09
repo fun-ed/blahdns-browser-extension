@@ -38,6 +38,8 @@ Configure browser DoH manually with either endpoint:
 
 **Test DNS** sends a fixed `example.com` query. It does not configure or prove which resolver browser traffic uses.
 
+**Recorded browser DoH status** saves your manual On/Off confirmation, or Not confirmed. Choose a value and save settings; it is included in settings import/export. It does not change or detect browser DoH, and DNS tests do not update it.
+
 The extension does not inject fingerprint-spoofing scripts or guarantee anonymity or CAPTCHA acceptance. Chrome/Brave retain browser-native fingerprint controls; use [Brave Shields](https://support.brave.com/hc/en-us/articles/360022806212-How-do-I-use-Shields-while-browsing) where applicable. HTTP/2, HTTP/3, QUIC, UDP and existing connections depend on browser/network behavior; the extension cannot promise every connection uses a proxy. See [privacy policy](PRIVACY.md).
 
 ## Development

@@ -488,6 +488,60 @@ try {
           "getState reads native privacy and proxy status without writes",
         );
       }
+      await options.click("#tab-network");
+      assert.equal(
+        await options.$eval("#dohManualStatus", (el) => el.value),
+        "unknown",
+      );
+      let previousDohStatus = "unknown";
+      for (const status of ["enabled", "disabled", "unknown"]) {
+        await options.select("#dohManualStatus", status);
+        assert.equal(
+          (await send({ type: "getState" })).settings.dohManualStatus,
+          previousDohStatus,
+        );
+        await options.click("#save-button");
+        await options.waitForFunction(() =>
+          document
+            .querySelector("#save-state")
+            .textContent.includes("Settings saved."),
+        );
+        assert.equal(
+          (await send({ type: "getState" })).settings.dohManualStatus,
+          status,
+        );
+        if (name === "firefox") {
+          const previousPage = options;
+          options = await browser.newPage();
+          await options
+            .mainFrame()
+            .browsingContext.navigate(
+              previousPage.url().split("#")[0],
+              "complete",
+            );
+          await previousPage.close();
+        } else await options.reload();
+        await options.waitForFunction(() =>
+          document
+            .querySelector("#save-state")
+            .textContent.includes("Settings loaded."),
+        );
+        assert.equal(
+          await options.$eval("#dohManualStatus", (el) => el.value),
+          status,
+        );
+        await options.click("#tab-network");
+        if (status === "enabled")
+          await options.screenshot({
+            path: `artifacts/screenshots/${name}-doh-manual-on.png`,
+            fullPage: true,
+          });
+        previousDohStatus = status;
+      }
+      record.checks.push(
+        "manual DoH unknown/on/off saves only on request and survives reopening",
+      );
+      await options.click("#tab-filtering");
       await options.$eval("#customRules", (element) => {
         element.value = "ui-tracker.example";
         element.dispatchEvent(new Event("input", { bubbles: true }));
@@ -503,7 +557,12 @@ try {
         "ui-tracker.example",
       );
       await options.click("#tab-data");
-      const imported = { ...original, cleanUrls: false, statsEnabled: true };
+      const imported = {
+        ...original,
+        cleanUrls: false,
+        statsEnabled: true,
+        dohManualStatus: "enabled",
+      };
       const importPath = join(temp, "import-settings.json");
       await writeFile(importPath, JSON.stringify(imported));
       if (name === "firefox") {

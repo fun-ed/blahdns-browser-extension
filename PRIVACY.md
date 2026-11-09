@@ -6,6 +6,8 @@ Policy for the 0.2.4 preview. See [validation evidence](docs/evals/0.2.4/accepta
 
 The extension keeps its settings in browser-local storage. This includes appearance, enabled features, site scopes and exceptions, custom rules, subscription URLs and downloaded text, selected privacy settings, proxy address and port, and optional statistics. A manually updated default list and its download timestamp are cached separately in local storage. Proxy credentials are not stored by this extension. Appearance affects extension pages only.
 
+The optional manual DoH record stores only your selection of unknown, enabled or disabled. It does not read browser DNS settings or change the resolver.
+
 The extension does not send browsing history, page URLs, or usage analytics to BlahDNS. It has no cloud settings sync or remote code. Network rules are applied by the browser's DNR API.
 
 ## Optional network requests

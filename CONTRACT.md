@@ -19,6 +19,7 @@ Version: 1. Runtime dependencies: none. Source uses JavaScript ES modules. Bun b
   subscriptions: [],
   statsEnabled: false,
   dnsRegion: 'sg',
+  dohManualStatus: 'unknown',
   privacy: {
     webrtc: 'native',
     fingerprinting: 'native',
@@ -40,6 +41,8 @@ Version: 1. Runtime dependencies: none. Source uses JavaScript ES modules. Bun b
 `mode` is `global` or `sites`. A domain and its `*.domain` form both include the domain and all its subdomains. Label boundaries prevent `badexample.com` from matching `example.com`. Exceptions take precedence over filtering. Proxy scope is separate and matches the destination host. A filtering pause does not create a proxy bypass.
 
 `theme` is `system`, `light`, or `dark`; missing `theme` in a version-1 import becomes `system`. It controls extension UI only. System follows the operating-system color preference and updates live.
+
+`dohManualStatus` is `unknown`, `enabled` or `disabled`. It records the user's manual confirmation of browser DoH only; it neither changes nor detects the browser resolver. Missing values in version-1 imports default to `unknown`; invalid values are rejected. Save, import and export preserve the record. DNS diagnostics and the master filtering switch do not update it.
 
 WebRTC values are `native`, `public`, and `proxy`. Fingerprint protection values are `native` and `resist`. `resist` requires Firefox's native browser-wide setting. Language is `native` or `en-US`. Language and User-Agent changes affect HTTP request headers only. They do not alter JavaScript, Client Hints, TLS, or workers. Proxy types are `http`, `https`, `socks4`, and `socks5`. The master `enabled` switch releases proxy and native privacy settings as well as filtering.
 

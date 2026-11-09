@@ -16,6 +16,7 @@ export const DEFAULTS = {
   subscriptions: [],
   statsEnabled: false,
   dnsRegion: "sg",
+  dohManualStatus: "unknown",
   privacy: {
     webrtc: "native",
     fingerprinting: "native",
@@ -120,6 +121,11 @@ export function validateSettings(input) {
     customRules: text(input.customRules, 2_000_000, "customRules"),
     statsEnabled: bool(input.statsEnabled, "statsEnabled"),
     dnsRegion: oneOf(input.dnsRegion, ["sg", "de"], "dnsRegion"),
+    dohManualStatus: oneOf(
+      input.dohManualStatus === undefined ? "unknown" : input.dohManualStatus,
+      ["unknown", "enabled", "disabled"],
+      "dohManualStatus",
+    ),
     privacy: {
       webrtc: oneOf(p.webrtc, ["native", "public", "proxy"], "webrtc"),
       fingerprinting: oneOf(

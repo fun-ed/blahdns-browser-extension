@@ -73,6 +73,18 @@ test("appearance validates overrides and preserves version-1 imports", () => {
   for (const theme of [null, true, "auto", "<script>"])
     expect(() => validateSettings({ ...old, theme })).toThrow();
 });
+test("manual DoH status preserves old imports and round-trips explicit records", () => {
+  const old = defaults();
+  delete old.dohManualStatus;
+  expect(validateSettings(old).dohManualStatus).toBe("unknown");
+  for (const dohManualStatus of ["unknown", "enabled", "disabled"]) {
+    const input = { ...old, dohManualStatus };
+    expect(validateSettings(JSON.parse(JSON.stringify(input)))).toEqual(input);
+  }
+  for (const dohManualStatus of [null, true, false, 0, "on", "off", "auto"]) {
+    expect(() => validateSettings({ ...old, dohManualStatus })).toThrow();
+  }
+});
 test("default list cache is bounded and restricted to the fixed source", () => {
   const cache = {
     url: DEFAULT_ADBLOCK_URL,

@@ -246,7 +246,7 @@ function fillSettings(state) {
   ]) {
     byId(id).checked = Boolean(settings[id]);
   }
-  for (const id of ["mode", "customRules", "dnsRegion"])
+  for (const id of ["mode", "customRules", "dnsRegion", "dohManualStatus"])
     byId(id).value = settings[id];
   byId("theme").value = settings.theme ?? "system";
   setTheme(byId("theme").value);
@@ -307,6 +307,7 @@ function collectSettings() {
     subscriptions: subscriptionsFor(current),
     statsEnabled: byId("statsEnabled").checked,
     dnsRegion: byId("dnsRegion").value,
+    dohManualStatus: byId("dohManualStatus").value,
     privacy: {
       ...current.privacy,
       webrtc: byId("webrtc").value,

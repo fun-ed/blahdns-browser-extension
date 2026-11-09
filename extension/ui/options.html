@@ -371,6 +371,19 @@
 
           <section class="setting-section" aria-labelledby="dns-title">
             <h3 id="dns-title">BlahDNS DNS-over-HTTPS</h3>
+            <label class="field-label" for="dohManualStatus"
+              >Recorded browser DoH status</label
+            >
+            <select id="dohManualStatus" aria-describedby="doh-manual-help">
+              <option value="unknown">Not confirmed</option>
+              <option value="enabled">On (manual)</option>
+              <option value="disabled">Off (manual)</option>
+            </select>
+            <p id="doh-manual-help" class="field-help">
+              Save your record after checking DoH in your browser settings. This
+              does not change or verify browser DoH. DNS tests do not update
+              this record.
+            </p>
             <label class="field-label" for="dnsRegion">Test region</label>
             <select id="dnsRegion">
               <option value="sg">Singapore</option>
