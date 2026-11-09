@@ -1,6 +1,6 @@
 {
   "name": "blahdns-browser-extension",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "type": "module",
   "license": "GPL-3.0-only",
@@ -18,5 +18,9 @@
   },
   "devDependencies": {
     "puppeteer-core": "^25.16.0"
+  },
+  "dependencies": {
+    "re2js": "2.9.1",
+    "tldts": "7.4.19"
   }
 }

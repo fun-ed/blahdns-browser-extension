@@ -1,11 +1,11 @@
 # Architecture
 
-See [current verification](evals/0.2.5/acceptance-output.md) for tested browser versions and limits.
+See [current verification](evals/0.2.6/acceptance-output.md) for tested browser versions and limits.
 
 ## Runtime flow
 
 1. `extension/core/settings.js` validates settings and normalizes hostname patterns.
-2. `extension/background.js` loads bundled and user-provided list text, stores settings locally, compiles rules, and updates browser DNR rules.
+2. `extension/background.js` loads bundled and user-provided list text and stores settings locally. Chrome/Brave install the compiled rules in native DNR. Firefox builds an indexed `core/firefox-filter.js` evaluator before applying settings; `webRequest` returns cancellation or cleaned redirects, while DNR retains header changes and allowances. Failed saves keep the previous evaluator and restore native state.
 3. `extension/core/rules.js` converts supported hosts, ABP network, and CSS cosmetic syntax. `extension/content.js` cleans links. The background uses `scripting.insertCSS` for sender-scoped cosmetic rules so page CSP cannot block them.
 4. `extension/core/privacy.js` uses browser-native controls where available. `extension/core/proxy.js` configures browser proxy routing. `extension/core/dns.js` performs an explicit DoH endpoint diagnostic.
 5. `extension/ui/theme.js` resolves the saved System/Light/Dark preference for settings and popup. It changes extension CSS only; native media preference changes update System mode live.
@@ -16,7 +16,7 @@ Settings and popup query actual native values and control priority without chang
 
 Filtering can be global or limited to selected site domains. Both `example.com` and `*.example.com` match the apex and all subdomains. Label boundaries prevent `badexample.com` from matching `example.com`. Exceptions override filtering and header changes for matching sites. The proxy scope is separate and uses the destination hostname; a filtering exception does not bypass the proxy.
 
-DNR evaluates supported requests in the browser. The rule resource type set includes WebSocket requests, so matching supported blocking rules can block WebSocket handshakes. This does not make the extension a general HTTP proxy or expose request bodies to its rule compiler.
+Matching covers the supported resource types, including WebSocket handshakes. Firefox uses precompiled URL patterns and host indexes over the same compiled rules, with locally bundled `tldts` PSL data for first/third-party classification, including private suffixes. Allow/important priorities and inherited frame allowances are evaluated before cancellation or redirects. Unknown condition/action shapes fail before apply. No request bodies are requested or retained.
 
 ## List syntax and diagnostics
 
@@ -46,6 +46,8 @@ The `ads` snapshot is the original BlahDNS Lite ABP file from `https://oooo.b-cd
 
 The default list works offline. An explicit Update list action downloads the fixed HTTPS URL without credentials, referrer or redirects, with a 4 MB bound. The background validates the prospective cache and compiles it before applying the existing settings transaction. A failed application or persistence step reapplies the old source; only a successful transaction updates the separate local cache. Custom subscriptions retain their existing bounds and manual update flow. No startup or scheduled request runs.
 
+Optional per-tab statistics record this extension's block/redirect actions, not arbitrary network failures. `core/tab-activity.js` keeps counts and ten recent filters in session storage, through the background's serial queue. Tab loading/closure, successful saves, reset and opt-out clear it. Background sleep preserves it; browser restart discards it. No full observed URL, path/query, page hostname or timestamp is retained. Chrome/Brave rely on real unpacked-build feedback; Firefox records its own blocking/redirect responses. Persistent aggregate totals remain separate.
+
 ## Proxy and transport limits
 
 Proxy settings accept HTTP, HTTPS, SOCKS4 and SOCKS5 endpoints, with destination-host scopes and bypass patterns. Firefox uses `proxy.onRequest`, registered synchronously for event-page wake-up; Chromium uses mandatory PAC settings. The optional proxy permission is requested when enabled, and missing permission is reported separately from unavailable browser support. No credentials are stored. See the [Firefox lifecycle findings](research-firefox-proxy-event-page.md).
@@ -73,14 +75,15 @@ It reports endpoint, response code, answers, and latency. It does not configure 
 
 Review the generated manifests at each release. Permissions must have a direct feature reason:
 
-| Access                                 | Reason                                                                                                                       |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Local storage                          | Keep settings, downloaded lists, and optional local aggregate counters on-device.                                            |
-| DNR and host access                    | Apply blocking, redirects, header changes, and site scope to requests covered by the user's settings.                        |
-| Browser privacy API                    | Apply supported browser-native WebRTC and Firefox fingerprinting settings when enabled.                                      |
-| Scripting CSS API                      | Insert and remove validated cosmetic CSS in the sender frame, including pages with a strict CSP. No page script is injected. |
-| Proxy API (optional)                   | Route matching requests only after the user enables and grants proxy access.                                                 |
-| Debug rule feedback (development only) | Count blocked requests in unpacked builds where the browser exposes debug events.                                            |
+| Access                                | Reason                                                                                                                       |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Local/session storage                 | Keep settings, downloaded lists, aggregate counters and bounded temporary per-tab rule hits on-device.                       |
+| DNR and host access                   | Apply request rules on Chrome/Brave; retain native header changes and allowances on Firefox.                                 |
+| Firefox webRequest/webRequestBlocking | Return blocking and clean-URL redirect decisions and count this extension's actions; no request bodies are collected.        |
+| Browser privacy API                   | Apply supported browser-native WebRTC and Firefox fingerprinting settings when enabled.                                      |
+| Scripting CSS API                     | Insert and remove validated cosmetic CSS in the sender frame, including pages with a strict CSP. No page script is injected. |
+| Proxy API (optional)                  | Route matching requests only after the user enables and grants proxy access.                                                 |
+| Debug rule feedback (Chrome/Brave)    | Count actual actions in unpacked builds where the browser exposes debug events.                                              |
 
 Use the narrowest host-access model that supports the selected feature. Explain permission prompts in the UI; never add telemetry or broaden collection as a shortcut.
 

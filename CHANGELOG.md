@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.6 - 2026-11-10
+
+- Add popup opt-in, per-tab blocked/cleaned request counts and the ten most recent matching rules. Keep recent data in session storage and clear it on navigation, tab close, settings changes, opt-out, reset or restart.
+- Use Firefox-only `webRequest` and `webRequestBlocking` for observable cancellation and query-cleaning decisions; keep native header changes and allowances. Chrome/Brave retain DNR and unpacked-build feedback. Do not count unrelated request failures as extension blocks.
+- Bundle pinned `tldts` PSL data for first/third-party classification and `re2js` for linear-time matching of untrusted regex filters, without WebAssembly or CSP expansion. Add regression cases for URL syntax, priorities, site/frame/worker scope, signed URLs, transaction rollback and statistics boundaries.
+
 ## 0.2.5 - 2026-11-10
 
 - Add a manually recorded browser DoH status: Not confirmed, On or Off. Save settings preserves it across reopening and settings import/export; DNS tests do not update or detect it.
@@ -36,4 +42,4 @@
 
 Initial preview with DNR filtering, supported hosts/ABP/CSS rules, site scopes, URL cleaning, native privacy controls, destination-scoped proxies, DoH diagnostics, settings import/export and local counters.
 
-See the [current verification record](docs/evals/0.2.5/acceptance-output.md) for tested versions and limits.
+See the [current verification record](docs/evals/0.2.6/acceptance-output.md) for tested versions and limits.

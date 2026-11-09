@@ -1,6 +1,6 @@
 # References
 
-The runtime compiles supported filter text into browser DNR rules. JavaScript handles settings, parsing and diagnostics; the browser matches requests. The extension has no Rust/WASM runtime dependency. Compiler timings are not browser-performance or cross-language measurements.
+The runtime compiles supported filter text into a shared rule representation. Chrome/Brave use native DNR matching. Firefox uses indexed JavaScript matching for blocking/cleaning decisions and keeps DNR for headers/allowances. The pinned, locally bundled `tldts` library supplies PSL classification. No Rust/WASM engine is included. Compiler and synthetic request timings are not browser-performance or cross-language measurements.
 
 ## Browser APIs and design sources
 
@@ -13,4 +13,6 @@ The runtime compiles supported filter text into browser DNR rules. JavaScript ha
 
 Exact Firefox fingerprint-surface coverage and transport behavior depend on browser versions and require runtime checks. Community posts, store descriptions and upstream features do not establish this extension's capabilities.
 
-Current [verification](evals/0.2.5/acceptance-output.md) and [compiler benchmark](evals/0.2.5/benchmark-output.json) record what was tested. List sources, licenses and content hashes are recorded in `extension/lists/sources.json`.
+Current [verification](evals/0.2.6/acceptance-output.md) and [compiler/request benchmark](evals/0.2.6/benchmark-output.json) record what was tested. List sources, licenses and content hashes are recorded in `extension/lists/sources.json`.
+
+Firefox does not implement `getMatchedRules`, `onRuleMatchedDebug`, or `setExtensionActionOptions`; enabling a debug preference does not add them. See [MDN compatibility data](https://github.com/mdn/browser-compat-data/blob/main/webextensions/api/declarativeNetRequest.json). Firefox's [blocking webRequest API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onBeforeRequest) supplies observable cancellation/redirect decisions. Chrome/Brave keep their native feedback path, which requires unpacked installations.

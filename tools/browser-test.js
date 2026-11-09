@@ -38,7 +38,7 @@ const fixture = createServer((req, res) => {
   res.setHeader("Content-Type", "text/html");
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; connect-src http: ws:; style-src 'none'; script-src 'none'",
+    "default-src 'self'; connect-src http: ws:; frame-src http:; style-src 'none'; script-src 'none'",
   );
   res.end(
     '<!doctype html><html lang="en"><title>Privacy fixture</title><div class="advert">Advertisement fixture</div><a id="clean" href="/landing?utm_source=fixture&keep=1">Clean link</a><p>Local browser test.</p></html>',
@@ -245,7 +245,7 @@ try {
               ).declarativeNetRequest.getDynamicRules()
             ).length,
         ),
-        state.report.rules,
+        state.report.nativeRules,
       );
       assert(state.report.domains > 1000);
       record.checks.push("default lists installed");
@@ -718,9 +718,143 @@ try {
       record.checks.push(
         "opt-in statistics contain real aggregate counters without history",
       );
+      const siteTabId = await options.evaluate(async (url) => {
+        const api = globalThis.browser ?? globalThis.chrome;
+        return (await api.tabs.query({})).find((tab) => tab.url === url).id;
+      }, page.url());
+      const tabStats = () => send({ type: "getTabActivity", tabId: siteTabId });
+      let activityState = await tabStats();
+      assert(activityState.available);
+      assert.equal(activityState.activity.blockedRequests, 2);
+      assert(
+        activityState.activity.recent.some((entry) =>
+          entry.filter.includes("/blocked"),
+        ),
+      );
+      assert(
+        activityState.activity.recent.some((entry) =>
+          entry.filter.includes("/socket"),
+        ),
+      );
+      await page.evaluate(async () => {
+        try {
+          await fetch("http://127.0.0.1:1/unrelated-failure");
+        } catch {}
+      });
+      assert.equal(
+        (await tabStats()).activity.blockedRequests,
+        2,
+        "unmatched network failures are not BlahDNS blocks",
+      );
+      const activityPopupUrl = options
+        .url()
+        .replace(/options\.html.*$/, "popup.html");
+      const activityPopup = await browser.newPage();
+      await options.evaluate(async (tabId) => {
+        const api = globalThis.browser ?? globalThis.chrome;
+        await api.tabs.update(tabId, { active: true });
+      }, siteTabId);
+      if (name === "firefox")
+        await activityPopup
+          .mainFrame()
+          .browsingContext.navigate(activityPopupUrl, "complete");
+      else await activityPopup.goto(activityPopupUrl);
+      try {
+        await activityPopup.waitForFunction(
+          () => document.querySelector("#page-blocked")?.textContent === "2",
+          { timeout: 10000 },
+        );
+      } catch (error) {
+        const diagnostic = await activityPopup
+          .evaluate(async () => ({
+            body: document.body.textContent,
+            tabs: await (globalThis.browser ?? globalThis.chrome).tabs.query(
+              {},
+            ),
+          }))
+          .catch((error) => ({ error: error.message }));
+        throw new Error(
+          `Popup activity did not render: ${JSON.stringify(diagnostic)}`,
+          { cause: error },
+        );
+      }
+      await activityPopup.evaluate(async () => {
+        const api = globalThis.browser ?? globalThis.chrome;
+        const tab = await api.tabs.getCurrent();
+        await api.tabs.update(tab.id, { active: true });
+      });
+      await activityPopup.click(".popup-activity summary");
+      assert(
+        (
+          await activityPopup.$eval("#recent-rules", (node) => node.textContent)
+        ).includes("/blocked"),
+      );
+      await activityPopup.screenshot({
+        path: `artifacts/screenshots/${name}-popup-activity.png`,
+        fullPage: true,
+      });
+      await activityPopup.click("#stats-enabled");
+      await activityPopup.waitForFunction(
+        () => document.querySelector("#page-blocked").textContent === "Off",
+      );
+      assert.equal(
+        (await send({ type: "getState" })).settings.statsEnabled,
+        false,
+      );
+      assert.deepEqual(
+        await options.evaluate(async () =>
+          (globalThis.browser ?? globalThis.chrome).storage.session.get(null),
+        ),
+        {},
+      );
+      await activityPopup.close();
+      await save(settings);
+      await page.reload();
+      activityState = await tabStats();
+      assert.equal(activityState.activity.blockedRequests, 0);
+      assert.deepEqual(activityState.activity.recent, []);
+      record.checks.push(
+        "real per-tab HTTP/WebSocket blocks, recent rules, popup opt-out, unrelated failure exclusion and navigation reset",
+      );
+      if (name === "firefox")
+        await options.evaluate((tabId) => {
+          globalThis.navigationTrace = [];
+          browser.tabs.onUpdated.addListener((id, change) => {
+            if (id === tabId && change.status)
+              navigationTrace.push({ event: "tab", status: change.status });
+          });
+          browser.webRequest.onBeforeRequest.addListener(
+            (request) => {
+              if (request.tabId === tabId && request.type === "main_frame")
+                navigationTrace.push({
+                  event: "request",
+                  id: request.requestId,
+                  url: request.url,
+                });
+            },
+            { urls: ["http://localhost/*"] },
+          );
+          browser.storage.onChanged.addListener((changes, area) => {
+            if (area === "session" && changes[`tabActivity:${tabId}`])
+              navigationTrace.push({
+                event: "activity",
+                data: changes[`tabActivity:${tabId}`],
+              });
+          });
+        }, siteTabId);
       await page.goto(`${base}/landing?utm_source=fixture&keep=1`);
       assert(!page.url().includes("utm_source"));
       assert(page.url().includes("keep=1"));
+      const cleanedActivity = (await tabStats()).activity.cleanedRequests;
+      if (name === "firefox" && cleanedActivity !== 1)
+        throw new Error(
+          `Main-frame cleaning count ${cleanedActivity}: ${JSON.stringify(await options.evaluate(() => navigationTrace))}`,
+        );
+      assert.equal(
+        cleanedActivity,
+        1,
+        "the main-frame clean redirect remains visible on its landing page",
+      );
       await page.goto(`${base}/landing?utm_source=fixture&sig=preserve`);
       assert(page.url().includes("utm_source"));
       assert(page.url().includes("sig=preserve"));
@@ -779,6 +913,23 @@ try {
       record.checks.push(
         "wildcard pause releases network and cosmetic filtering",
       );
+      const pausedFrameUrl = `http://127.0.0.1:${port}/paused-child`;
+      await page.evaluate((url) => {
+        const frame = document.createElement("iframe");
+        frame.src = url;
+        document.body.append(frame);
+      }, pausedFrameUrl);
+      const pausedFrame = await page.waitForFrame(
+        (frame) => frame.url() === pausedFrameUrl,
+      );
+      await pausedFrame.waitForSelector(".advert");
+      assert.equal(
+        await pausedFrame.evaluate(async () =>
+          (await fetch("/blocked")).text(),
+        ),
+        "reached",
+      );
+      record.checks.push("paused top frame allows cross-origin child requests");
       await save({
         ...settings,
         mode: "sites",
@@ -789,6 +940,26 @@ try {
       assert.equal(
         await page.evaluate(async () => (await fetch("/blocked")).text()),
         "reached",
+      );
+      const outsideFrameUrl = `${base}/outside-child`;
+      await page.evaluate((url) => {
+        const frame = document.createElement("iframe");
+        frame.src = url;
+        document.body.append(frame);
+      }, outsideFrameUrl);
+      const outsideFrame = await page.waitForFrame(
+        (frame) => frame.url() === outsideFrameUrl,
+      );
+      await outsideFrame.waitForSelector(".advert");
+      assert.equal(
+        await outsideFrame.evaluate(
+          async (url) => (await fetch(url)).text(),
+          `http://127.0.0.1:${port}/blocked`,
+        ),
+        "reached",
+      );
+      record.checks.push(
+        "out-of-scope top frame allowance survives selected-origin child initiator",
       );
       await page.goto(`${base}/page`);
       assert(

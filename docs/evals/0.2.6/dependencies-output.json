@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "command": "mise exec -- bun install --frozen-lockfile --ignore-scripts",
+  "packagesChecked": 28,
+  "changes": false
+}

@@ -43,6 +43,18 @@ for (const target of ["chromium", "firefox"]) {
   );
   assert.deepEqual(manifest.optional_permissions, ["proxy"]);
   assert(!manifest.permissions.includes("proxy"));
+  assert.equal(
+    manifest.permissions.includes("webRequest"),
+    target === "firefox",
+  );
+  assert.equal(
+    manifest.permissions.includes("webRequestBlocking"),
+    target === "firefox",
+  );
+  assert.equal(
+    manifest.permissions.includes("declarativeNetRequestFeedback"),
+    target === "chromium",
+  );
   assert.equal(manifest.incognito, "not_allowed");
   assert(
     !manifest.externally_connectable && !manifest.web_accessible_resources,

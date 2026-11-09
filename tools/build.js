@@ -30,6 +30,19 @@ for (const target of ["chromium", "firefox"]) {
   if (!result.success)
     throw new AggregateError(result.logs, "Content script build failed.");
   await writeFile(`${out}/content.js`, await result.outputs[0].text());
+  const filterBuild = await Bun.build({
+    entrypoints: ["extension/core/firefox-filter.js"],
+    target: "browser",
+    format: "esm",
+    minify: true,
+    write: false,
+  });
+  if (!filterBuild.success)
+    throw new AggregateError(filterBuild.logs, "Firefox filter build failed.");
+  await writeFile(
+    `${out}/core/firefox-filter.js`,
+    await filterBuild.outputs[0].text(),
+  );
   const manifest = {
     manifest_version: 3,
     name: "BlahDNS Browser Extension",
@@ -42,7 +55,9 @@ for (const target of ["chromium", "firefox"]) {
       "privacy",
       "scripting",
       "declarativeNetRequest",
-      "declarativeNetRequestFeedback",
+      ...(target === "firefox"
+        ? ["webRequest", "webRequestBlocking"]
+        : ["declarativeNetRequestFeedback"]),
     ],
     optional_permissions: ["proxy"],
     host_permissions: ["<all_urls>"],

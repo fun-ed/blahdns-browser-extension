@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "command": "mise exec -- bun test",
+  "runtime": "Bun 1.4.4",
+  "passed": 90,
+  "failed": 0,
+  "expectations": 560
+}

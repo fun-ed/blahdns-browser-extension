@@ -1,8 +1,8 @@
 # BlahDNS Browser Extension
 
-A Manifest V3 privacy extension for Chrome, Brave and Firefox. It blocks ads, trackers and content farms, removes known tracking parameters, and provides optional native privacy and proxy controls. Settings and optional aggregate counters stay in your browser. No telemetry or browsing history is collected.
+A Manifest V3 privacy extension for Chrome, Brave and Firefox. It blocks ads, trackers and content farms, removes known tracking parameters, and provides optional native privacy and proxy controls. Settings, optional aggregate counters and temporary per-tab rule hits stay in your browser. No telemetry or browsing history is uploaded.
 
-Current release: [0.2.5 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.5). See [verification and limits](docs/evals/0.2.5/acceptance-output.md).
+Current release: [0.2.6 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.6). See [verification and limits](docs/evals/0.2.6/acceptance-output.md).
 
 ## Features
 
@@ -10,9 +10,11 @@ Current release: [0.2.5 preview](https://github.com/fun-ed/blahdns-browser-exten
 - Known tracking-parameter removal with signed-URL exceptions.
 - Destination-scoped HTTP, HTTPS, SOCKS4 and SOCKS5 proxies. Selected destinations have no direct failover. Filtering exceptions do not bypass the proxy.
 - Native WebRTC policies and opt-in Firefox Resist Fingerprinting, both browser-wide. User-Agent and en-US options affect HTTP headers only.
-- Settings import/export, optional local counters, and System, Light and Dark appearances.
+- Settings import/export, optional local counters and recent matching rules in the popup, and System, Light and Dark appearances.
 
 ![Settings in Firefox](docs/images/settings-firefox.png)
+
+![Local activity in the Firefox popup](docs/images/popup-firefox.png)
 
 ## Install
 
@@ -22,6 +24,8 @@ Download a package from [GitHub releases](https://github.com/fun-ed/blahdns-brow
 - Firefox: open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, then the intact XPI or `manifest.json` from the extracted Firefox ZIP. The XPI is unsigned, and temporary installation ends at browser restart. Ordinary permanent installation requires Mozilla signing.
 
 The manifests declare Chrome 121 and Firefox 140 minimums. Tested versions are Chrome 157, Brave Beta on Chromium 157 and Firefox Developer Edition 160. Store packages and CRX are not provided.
+
+In the popup, enable **Local statistics**, then reload the site. **Blocked requests** and **Recent rules** show this extension's actions; unrelated failures or other blockers are not counted. Recent data clears on navigation, tab close, settings changes, opt-out, reset or browser restart. Firefox uses the newly required `webRequest` and `webRequestBlocking` permissions; Chrome/Brave statistics require the unpacked installation above. No browser debug preference is required on Firefox.
 
 ## Lists
 
@@ -51,6 +55,6 @@ mise exec -- bun install --frozen-lockfile
 mise exec -- bun run build
 ```
 
-Source builds produce `dist/chromium` and `dist/firefox`. The extension has no runtime dependencies; puppeteer-core supports browser tests. See [contributing](CONTRIBUTING.md) for checks, [runtime contract](CONTRACT.md) for interfaces, [references](docs/research.md) for design sources, and [changelog](CHANGELOG.md) for release history.
+Source builds produce `dist/chromium` and `dist/firefox`. Pinned `tldts` and `re2js` dependencies are bundled locally for Firefox PSL classification and linear-time regex matching; puppeteer-core supports browser tests. No WebAssembly or remote code is required. See [contributing](CONTRIBUTING.md) for checks, [runtime contract](CONTRACT.md) for interfaces, [references](docs/research.md) for design sources, and [changelog](CHANGELOG.md) for release history.
 
 Licensed under [GPL-3.0-only](LICENSE). Third-party notices are in [NOTICE.md](NOTICE.md).

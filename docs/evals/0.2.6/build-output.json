@@ -1,0 +1,24 @@
+{
+  "version": "0.2.6",
+  "bun": "1.4.4",
+  "outputs": [
+    {
+      "target": "chromium",
+      "path": "artifacts/blahdns-chromium-0.2.6.zip",
+      "bytes": 1133541,
+      "sha256": "7a9eba77719e5be207b0070638f6ae919ec9d3d4a105a5168f05bcc205c2963d"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.2.6.zip",
+      "bytes": 1133603,
+      "sha256": "816850b94d47e0cf9959bb8acd95b4c5717f4bffa41c4069a20acc078694fed8"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.2.6.xpi",
+      "bytes": 1133603,
+      "sha256": "816850b94d47e0cf9959bb8acd95b4c5717f4bffa41c4069a20acc078694fed8"
+    }
+  ]
+}

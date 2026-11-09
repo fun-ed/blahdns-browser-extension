@@ -173,15 +173,14 @@ function renderStats(stats, settings, capabilities) {
       "Turn on local statistics to collect counters.";
   } else if (stats.blockedRequests == null) {
     byId("stat-blocked").textContent = "Unavailable";
-    byId("blocked-availability").textContent = capabilities.dnrFeedback
-      ? "No blocked request total is available. The counter needs DNR debug events, which may be unavailable in production builds."
-      : "Blocked request totals are unavailable in this build or browser. Production builds may not expose DNR debug events.";
+    byId("blocked-availability").textContent =
+      "Blocked totals are unavailable in this browser build. Chrome and Brave require an unpacked development installation.";
   } else {
     byId("stat-blocked").textContent = Number.isFinite(stats.blockedRequests)
       ? numberFormat.format(stats.blockedRequests)
       : "Unavailable";
     byId("blocked-availability").textContent =
-      "Blocked request totals use browser DNR debug feedback.";
+      "Totals count BlahDNS blocking actions while local statistics are enabled.";
   }
 }
 

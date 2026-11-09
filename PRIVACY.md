@@ -1,6 +1,6 @@
 # Privacy policy
 
-Policy for the 0.2.5 preview. See [validation evidence](docs/evals/0.2.5/acceptance-output.md) for tested behavior and limits.
+Policy for the 0.2.6 preview. See [validation evidence](docs/evals/0.2.6/acceptance-output.md) for tested behavior and limits.
 
 ## What stays in your browser
 
@@ -8,7 +8,7 @@ The extension keeps its settings in browser-local storage. This includes appeara
 
 The optional manual DoH record stores only your selection of unknown, enabled or disabled. It does not read browser DNS settings or change the resolver.
 
-The extension does not send browsing history, page URLs, or usage analytics to BlahDNS. It has no cloud settings sync or remote code. Network rules are applied by the browser's DNR API.
+The extension does not send browsing history, page URLs, or usage analytics to BlahDNS. It has no cloud settings sync or remote code. Chrome/Brave use native DNR matching. Firefox uses `webRequest` and `webRequestBlocking` to cancel matching requests and clean navigation URLs, with native DNR for header changes and allowances. These Firefox permissions are required for filtering and accurate local action counts; the listener does not request or retain request bodies. Its Public Suffix List is bundled locally without a lookup service.
 
 ## Optional network requests
 
@@ -21,7 +21,9 @@ The extension has no other planned service connection for telemetry, analytics, 
 
 ## Optional local counters
 
-Statistics are off by default and can be enabled by the user. Counters are stored locally and contain totals only, with no URL, domain, timestamp, or browsing history. Exact blocked-request counts depend on browser debug feedback and are available only in unpacked development builds where that feedback is exposed. No counter data is uploaded.
+Statistics are off by default. You can enable them in settings or the popup. Persistent local counters contain aggregate totals only. When enabled, session storage also holds the current tab's block/cleaning counts and up to ten recent matching filters with rule IDs and hit counts. No full request URL, observed path/query, source-page hostname, or timestamp is retained. A displayed filter can contain a hostname/path/query already present in the configured rule. Recent data clears on navigation, tab close, successful settings changes, reset, browser restart or statistics opt-out; it survives background sleep. Opt-out preserves earlier aggregate totals until you reset them. No counter or rule-hit data is uploaded.
+
+Firefox counts its own blocking/redirect decisions. Chrome and Brave use browser debug feedback, currently available to unpacked development installations; unavailable feedback is shown explicitly. Counts exclude unrelated network failures, DNS blocking and other blockers' actions. Collection starts when enabled; reload an existing page to collect its requests.
 
 ## Browser privacy settings
 

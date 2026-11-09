@@ -7,9 +7,11 @@ const popupState = {
   settings: null,
   capabilities: {},
   hostname: "",
+  tabId: null,
   paused: false,
   canResume: true,
 };
+let activityRequest = 0;
 
 function setStatus(message, error = false) {
   const status = byId("popup-status");
@@ -135,6 +137,65 @@ function render(state) {
   }
   const stateError = stateErrorMessage(state);
   if (stateError) setStatus(stateError, true);
+  byId("stats-enabled").checked = state.settings.statsEnabled;
+  byId("stats-enabled").disabled = false;
+  void refreshActivity();
+}
+
+async function refreshActivity() {
+  const request = ++activityRequest;
+  const list = byId("recent-rules");
+  const note = byId("activity-note");
+  try {
+    list.replaceChildren();
+    if (!popupState.settings?.statsEnabled) {
+      byId("page-blocked").textContent = "Off";
+      byId("page-cleaned").textContent = "Off";
+      note.textContent =
+        "Enable local statistics, then reload this page to collect requests.";
+      return;
+    }
+    if (!popupState.hostname || !Number.isInteger(popupState.tabId))
+      throw new Error("Statistics are available on regular web pages only.");
+    const result = await send("getTabActivity", { tabId: popupState.tabId });
+    if (request !== activityRequest) return;
+    if (!result.enabled) {
+      popupState.settings.statsEnabled = false;
+      byId("stats-enabled").checked = false;
+      return refreshActivity();
+    }
+    if (!result.available)
+      throw new Error(
+        result.reason ??
+          "This browser build does not expose blocking feedback. Chrome and Brave require an unpacked development installation.",
+      );
+    const data = result.activity;
+    byId("page-blocked").textContent = data.blockedRequests.toLocaleString();
+    byId("page-cleaned").textContent = data.cleanedRequests.toLocaleString();
+    for (const entry of data.recent) {
+      const item = document.createElement("li");
+      const filter = document.createElement("code");
+      filter.textContent = entry.filter;
+      item.append(
+        `${entry.action === "block" ? "Blocked" : "Cleaned"} · Rule ${entry.ruleId} · ${entry.hits}× `,
+        filter,
+      );
+      list.append(item);
+    }
+    if (!data.recent.length) {
+      const item = document.createElement("li");
+      item.textContent =
+        "No BlahDNS network actions recorded on this page yet.";
+      list.append(item);
+    }
+    note.textContent =
+      "Only BlahDNS actions are counted. Recent rules clear on navigation, tab close, settings changes or browser restart. Reload after enabling.";
+  } catch (error) {
+    if (request !== activityRequest) return;
+    byId("page-blocked").textContent = "Unavailable";
+    byId("page-cleaned").textContent = "Unavailable";
+    note.textContent = error instanceof Error ? error.message : String(error);
+  }
 }
 
 async function load() {
@@ -148,6 +209,7 @@ async function load() {
       .catch(() => []);
     const [state, tabs] = await Promise.all([send("getState"), tabQuery]);
     const url = tabs[0]?.url;
+    popupState.tabId = tabs[0]?.id ?? null;
     if (typeof url === "string" && /^https?:/i.test(url)) {
       try {
         popupState.hostname = new URL(url).hostname.toLowerCase();
@@ -210,6 +272,29 @@ byId("site-toggle").addEventListener("click", async () => {
   } finally {
     updateSiteAction();
   }
+});
+
+byId("stats-enabled").addEventListener("change", async () => {
+  const checkbox = byId("stats-enabled");
+  checkbox.disabled = true;
+  try {
+    const state = await send("saveSettings", {
+      settings: { ...popupState.settings, statsEnabled: checkbox.checked },
+    });
+    render(state);
+  } catch (error) {
+    checkbox.checked = !!popupState.settings?.statsEnabled;
+    setStatus(error instanceof Error ? error.message : String(error), true);
+  } finally {
+    checkbox.disabled = !popupState.settings;
+  }
+});
+api.storage?.onChanged?.addListener((changes, area) => {
+  if (
+    area === "session" &&
+    Object.hasOwn(changes, `tabActivity:${popupState.tabId}`)
+  )
+    void refreshActivity();
 });
 
 load();

@@ -18,6 +18,9 @@ jobs:
       - run: mise exec -- bun test
       - run: mise exec -- bun run build
       - run: mise exec -- bun run check
+      - run: mise exec -- bun tools/native-parity.js
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
       - run: mise exec -- bun run test:browser chrome
         env:
           CHROME_PATH: /usr/bin/google-chrome

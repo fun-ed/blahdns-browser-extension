@@ -11,13 +11,19 @@ import { compileRules, selectorsFor } from "./core/rules.js";
 import { applyPrivacy, readPrivacy } from "./core/privacy.js";
 import { applyProxy, readProxy, routeProxy } from "./core/proxy.js";
 import { testDns } from "./core/dns.js";
+import { createFirefoxFilter } from "./core/firefox-filter.js";
+import { TabActivity } from "./core/tab-activity.js";
 
 const api = globalThis.browser ?? globalThis.chrome;
 const firefox =
   typeof globalThis.browser !== "undefined" && !!api.runtime.getBrowserInfo;
 let current,
   compiled,
-  lastError = null;
+  lastError = null,
+  applyingRules = false,
+  initialized = false,
+  nativeFallback = false;
+const activity = new TabActivity(api.storage.session);
 let serial = Promise.resolve();
 const enqueue = (work) => {
   const task = serial.then(work);
@@ -51,9 +57,14 @@ async function sources(settings, prospectiveList = defaultList) {
   ];
 }
 async function compile(settings, prospectiveList = defaultList) {
-  return compileRules(settings, await sources(settings, prospectiveList));
+  const result = compileRules(
+    settings,
+    await sources(settings, prospectiveList),
+  );
+  if (firefox) result.evaluate = createFirefoxFilter(result.rules).evaluate;
+  return result;
 }
-async function installRules(result) {
+async function installRules(result, fallback = false) {
   for (const rule of result.rules.filter((r) => r.condition.regexFilter)) {
     const supported = await api.declarativeNetRequest.isRegexSupported({
       regex: rule.condition.regexFilter,
@@ -67,11 +78,17 @@ async function installRules(result) {
   const old = await api.declarativeNetRequest.getDynamicRules();
   await api.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: old.map((r) => r.id),
-    addRules: result.rules,
+    addRules:
+      firefox && !fallback
+        ? result.rules.filter(
+            (rule) => !["block", "redirect"].includes(rule.action.type),
+          )
+        : result.rules,
   });
 }
-async function apply(settings, result) {
-  await installRules(result);
+async function apply(settings, result, fallback = false) {
+  applyingRules = true;
+  await installRules(result, fallback);
   const privacy = await applyPrivacy(api, settings.privacy, settings.enabled);
   if (
     !privacy.controls.webrtc.applied &&
@@ -107,6 +124,8 @@ async function save(input, prospectiveList = defaultList) {
   const next = validateSettings(input);
   const result = await compile(next, prospectiveList);
   const previous = current;
+  const previousCompiled = compiled,
+    previousFallback = nativeFallback;
   try {
     await apply(next, result);
     await api.storage.local.set({
@@ -117,18 +136,25 @@ async function save(input, prospectiveList = defaultList) {
     });
   } catch (error) {
     try {
-      if (previous) await apply(previous, await compile(previous));
+      if (previous) await apply(previous, previousCompiled, previousFallback);
     } catch (rollback) {
       throw new Error(
         `${error.message}; rollback failed: ${rollback.message}. Disable the extension and check its settings.`,
       );
     }
     throw error;
+  } finally {
+    applyingRules = false;
   }
   defaultList = prospectiveList;
   current = next;
   compiled = result;
+  nativeFallback = false;
   lastError = null;
+  await activity.clearAll().catch(() => {
+    lastError =
+      "Settings saved, but temporary statistics could not be cleared. Restart the browser to clear them.";
+  });
   await notifyTabs();
   return state();
 }
@@ -151,18 +177,31 @@ async function state() {
       url: DEFAULT_ADBLOCK_URL,
       updatedAt: defaultList?.updatedAt ?? null,
     },
-    report: compiled.report,
+    report: {
+      ...compiled.report,
+      nativeRules: compiled.rules.filter(
+        (rule) =>
+          !firefox ||
+          nativeFallback ||
+          !["block", "redirect"].includes(rule.action.type),
+      ).length,
+    },
     stats: {
       cleanedLinks: 0,
       cosmeticPages: 0,
-      blockedRequests: null,
       ...stored.stats,
+      blockedRequests:
+        blockingStatsAvailable() && current.statsEnabled
+          ? (stored.stats?.blockedRequests ?? 0)
+          : null,
     },
     capabilities: {
       firefox,
       proxyPermission,
       rfp: !!api.privacy?.websites?.resistFingerprinting,
       dnrFeedback: !!api.declarativeNetRequest.onRuleMatchedDebug,
+      blockingStats: blockingStatsAvailable(),
+      nativeFallback,
     },
     privacyStatus: await readPrivacy(
       api,
@@ -264,12 +303,15 @@ async function fetchSubscription(url, maxBytes = 2_000_000) {
 const ready = enqueue(async () => {
   current = structuredClone(DEFAULTS);
   compiled = compileRules(current, []);
+  let settingsLoaded = false;
   try {
     await api.storage.local.setAccessLevel?.({
       accessLevel: "TRUSTED_CONTEXTS",
     });
     const stored = await api.storage.local.get(["settings", "defaultList"]);
     current = validateSettings(stored.settings ?? current);
+    settingsLoaded = true;
+    if (!current.statsEnabled) await activity.clearAll();
     defaultList = stored.defaultList
       ? validateDefaultList(stored.defaultList)
       : null;
@@ -278,6 +320,24 @@ const ready = enqueue(async () => {
   } catch (error) {
     // Keep settings reachable after permission revocation or an invalid stored value.
     lastError = error.message;
+    if (firefox && !settingsLoaded)
+      lastError +=
+        " Firefox request filtering is not initialized. Restore valid settings; any previously installed native rules are unchanged.";
+    if (firefox && settingsLoaded && !compiled.evaluate) {
+      try {
+        const fallback = compileRules(current, await sources(current));
+        await installRules(fallback, true);
+        compiled = fallback;
+        nativeFallback = true;
+        lastError +=
+          " Native DNR fallback filtering is active; request statistics are unavailable. Fix the rule error in settings.";
+      } catch (fallback) {
+        lastError += ` Filtering could not initialize: ${fallback.message}`;
+      }
+    }
+  } finally {
+    applyingRules = false;
+    initialized = true;
   }
 });
 
@@ -306,6 +366,26 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
     switch (message.type) {
       case "getState":
         return state();
+      case "getTabActivity": {
+        if (!Number.isInteger(message.tabId) || message.tabId < 0)
+          throw new Error("Invalid tab ID.");
+        const tab = await api.tabs.get(message.tabId);
+        if (tab.incognito || !/^https?:/.test(tab.url ?? ""))
+          throw new Error(
+            "Statistics are available on regular web pages only.",
+          );
+        return {
+          ok: true,
+          enabled: current.statsEnabled,
+          available: blockingStatsAvailable(),
+          reason: nativeFallback
+            ? "Firefox native fallback filtering is active. Fix the rule error in full settings to restore statistics."
+            : null,
+          activity: current.statsEnabled
+            ? await activity.get(message.tabId)
+            : null,
+        };
+      }
       case "saveSettings":
         return save(message.settings);
       case "previewRules":
@@ -353,6 +433,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
       }
       case "resetStats":
         await api.storage.local.remove("stats");
+        await activity.clearAll();
         return state();
       default:
         throw new Error("Unsupported operation.");
@@ -396,13 +477,125 @@ api.permissions.onAdded.addListener(() => {
 api.permissions.onRemoved.addListener(() => {
   void registerProxyListener().catch(() => {});
 });
-api.declarativeNetRequest.onRuleMatchedDebug?.addListener((info) => {
-  enqueue(async () => {
-    await ready;
-    const rule = compiled.rules.find((r) => r.id === info.rule.ruleId);
-    if (rule?.action.type === "block" && !info.request.incognito)
-      await count("blockedRequests");
-  }).catch(() => {});
+const navigations = new Map();
+// A main-frame action can precede tabs.onUpdated; both events must reset the page only once.
+// shortcut: tab counts can include unload requests after navigation starts; add document identity for individual-document attribution.
+function beginNavigation(tabId, requestId) {
+  if (!Number.isInteger(tabId) || tabId < 0) return;
+  const previous = navigations.get(tabId);
+  if (requestId !== undefined && previous) {
+    if (previous.requestId === requestId) {
+      // Firefox sends another loading event when webRequest follows a redirect.
+      if (firefox && !previous.complete) previous.waitingForLoading = true;
+      return previous;
+    }
+    if (!previous.complete && previous.requestId === undefined) {
+      previous.requestId = requestId;
+      return previous;
+    }
+  } else if (
+    requestId === undefined &&
+    previous?.waitingForLoading &&
+    !previous.complete
+  ) {
+    previous.waitingForLoading = false;
+    return previous;
+  }
+  const navigation = {
+    requestId,
+    waitingForLoading: requestId !== undefined,
+    complete: false,
+  };
+  navigations.set(tabId, navigation);
+  enqueue(() => activity.clear(tabId)).catch(() => {});
+  return navigation;
+}
+function blockingStatsAvailable() {
+  return firefox
+    ? typeof compiled?.evaluate === "function" &&
+        !!api.webRequest?.onBeforeRequest?.hasListener(firefoxFilterListener)
+    : !!api.declarativeNetRequest.onRuleMatchedDebug;
+}
+async function recordAction(request, rule, source, navigation) {
+  if (
+    source !== compiled ||
+    !current.statsEnabled ||
+    request.incognito ||
+    request.type === "speculative" ||
+    !rule
+  )
+    return;
+  const tab =
+    request.tabId >= 0
+      ? await api.tabs.get(request.tabId).catch(() => null)
+      : null;
+  if (tab && !tab.incognito && navigation === navigations.get(request.tabId))
+    await activity.record(request.tabId, rule, request.url);
+  if (rule.action.type === "block") await count("blockedRequests");
+}
+const firefoxFilterListener = async (details) => {
+  const navigation =
+    details.type === "main_frame"
+      ? beginNavigation(details.tabId, details.requestId)
+      : navigations.get(details.tabId);
+  await ready;
+  let topUrl;
+  if (
+    details.type !== "main_frame" &&
+    details.frameId >= 0 &&
+    !details.frameAncestors &&
+    !details.documentUrl &&
+    details.tabId >= 0
+  )
+    topUrl = (await api.tabs.get(details.tabId).catch(() => null))?.url;
+  const source = compiled;
+  const decision = source.evaluate?.(details, topUrl);
+  if (!decision) return undefined;
+  const rule = source.rules.find((rule) => rule.id === decision.ruleId);
+  enqueue(() => recordAction(details, rule, source, navigation)).catch(
+    () => {},
+  );
+  return decision.action === "block"
+    ? { cancel: true }
+    : { redirectUrl: decision.redirectUrl };
+};
+if (firefox) {
+  api.webRequest.onBeforeRequest.addListener(
+    firefoxFilterListener,
+    { urls: ["<all_urls>"] },
+    ["blocking"],
+  );
+} else {
+  api.declarativeNetRequest.onRuleMatchedDebug?.addListener((info) => {
+    if (initialized && applyingRules) return;
+    const source = initialized ? compiled : null;
+    const navigation =
+      info.request.type === "main_frame"
+        ? beginNavigation(info.request.tabId, info.request.requestId)
+        : navigations.get(info.request.tabId);
+    enqueue(async () => {
+      await ready;
+      const activeSource = source ?? compiled;
+      const rule = activeSource?.rules.find(
+        (rule) => rule.id === info.rule.ruleId,
+      );
+      await recordAction(info.request, rule, activeSource, navigation);
+    }).catch(() => {});
+  });
+}
+api.tabs.onUpdated.addListener((tabId, change) => {
+  if (change.status === "loading") beginNavigation(tabId);
+  else if (change.status === "complete") {
+    const navigation = navigations.get(tabId);
+    if (navigation) {
+      navigation.complete = true;
+      navigation.waitingForLoading = false;
+    }
+  }
+});
+api.tabs.onRemoved.addListener((tabId) => {
+  navigations.delete(tabId);
+  enqueue(() => activity.clear(tabId)).catch(() => {});
 });
 api.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install")

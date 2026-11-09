@@ -62,8 +62,15 @@ for (const dir of ["extension", "tools", "tests"]) {
   }
 }
 const pkg = await Bun.file("package.json").json();
-if (pkg.dependencies && Object.keys(pkg.dependencies).length)
-  fail("package.json", "runtime dependencies must stay empty");
+if (
+  Object.keys(pkg.dependencies ?? {}).some(
+    (name) => !["tldts", "re2js"].includes(name),
+  )
+)
+  fail(
+    "package.json",
+    "only reviewed, locally bundled tldts and re2js runtime dependencies are allowed",
+  );
 if (
   Object.keys(pkg.devDependencies ?? {}).some((name) =>
     /eslint|prettier|biome|oxlint/.test(name),

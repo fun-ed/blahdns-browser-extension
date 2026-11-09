@@ -40,6 +40,33 @@
         role="status"
         aria-live="polite"
       ></p>
+      <section class="popup-activity" aria-labelledby="activity-heading">
+        <h2 id="activity-heading">This tab</h2>
+        <label
+          ><input id="stats-enabled" type="checkbox" disabled /> Local
+          statistics</label
+        >
+        <dl class="stats-list">
+          <div>
+            <dt>Blocked requests</dt>
+            <dd id="page-blocked">—</dd>
+          </div>
+          <div>
+            <dt>Cleaned requests</dt>
+            <dd id="page-cleaned">—</dd>
+          </div>
+        </dl>
+        <details>
+          <summary>Recent rules</summary>
+          <ul id="recent-rules" class="diagnostic-list"></ul>
+        </details>
+        <p
+          id="activity-note"
+          class="popup-status"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </section>
       <a class="settings-link" href="options.html">Open full settings</a>
     </main>
   </body>
