@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BlahDNS</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="popup.js"></script>
+  </head>
+  <body class="popup-body">
+    <main class="popup-shell">
+      <header class="popup-header">
+        <a class="wordmark" href="options.html" aria-label="BlahDNS settings"
+          >BlahDNS</a
+        >
+        <span id="global-state" class="state-badge">Loading</span>
+      </header>
+      <p id="current-host" class="current-host">Loading the current site…</p>
+      <button
+        id="global-toggle"
+        class="button button-primary popup-action"
+        type="button"
+        disabled
+      >
+        Loading settings…
+      </button>
+      <button
+        id="site-toggle"
+        class="button popup-action"
+        type="button"
+        disabled
+      >
+        Loading site settings…
+      </button>
+      <p
+        id="popup-status"
+        class="popup-status"
+        role="status"
+        aria-live="polite"
+      ></p>
+      <a class="settings-link" href="options.html">Open full settings</a>
+    </main>
+  </body>
+</html>

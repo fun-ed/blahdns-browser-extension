@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-09T07:56:57.853Z",
+  "note": "Isolated profiles. Optional proxy permission pre-granted in a test-only copy; native optional permission prompt not covered. HTTP/2, HTTP/3, QUIC transport and CAPTCHA outcomes are not tested.",
+  "results": [
+    {
+      "browser": "chrome",
+      "checks": ["default lists installed"],
+      "status": "failed",
+      "version": "Chrome/157.0.8103.39",
+      "error": "Browser does not support regex: [?&](utm_source|utm_medium|utm_campaign|utm_term|utm_content|utm_id|utm_source_platform|utm_creative_format|utm_marketing_tactic|fbclid|gclid|dclid|msclkid|twclid|ttclid|yclid|mc_cid|mc_eid|_ga|_gl|igshid|srsltid)= (memoryLimitExceeded); rollback failed: Browser does not support regex: [?&](utm_source|utm_medium|utm_campaign|utm_term|utm_content|utm_id|utm_source_platform|utm_creative_format|utm_marketing_tactic|fbclid|gclid|dclid|msclkid|twclid|ttclid|yclid|mc_cid|mc_eid|_ga|_gl|igshid|srsltid)= (memoryLimitExceeded). Disable the extension and check its settings."
+    },
+    {
+      "browser": "brave",
+      "checks": ["default lists installed"],
+      "status": "failed",
+      "version": "Chrome/157.0.8103.39",
+      "error": "Browser does not support regex: [?&](utm_source|utm_medium|utm_campaign|utm_term|utm_content|utm_id|utm_source_platform|utm_creative_format|utm_marketing_tactic|fbclid|gclid|dclid|msclkid|twclid|ttclid|yclid|mc_cid|mc_eid|_ga|_gl|igshid|srsltid)= (memoryLimitExceeded); rollback failed: Browser does not support regex: [?&](utm_source|utm_medium|utm_campaign|utm_term|utm_content|utm_id|utm_source_platform|utm_creative_format|utm_marketing_tactic|fbclid|gclid|dclid|msclkid|twclid|ttclid|yclid|mc_cid|mc_eid|_ga|_gl|igshid|srsltid)= (memoryLimitExceeded). Disable the extension and check its settings."
+    },
+    {
+      "browser": "firefox",
+      "checks": [],
+      "status": "failed",
+      "version": "firefox/160.0",
+      "error": "Timed out after waiting 30000ms"
+    }
+  ]
+}

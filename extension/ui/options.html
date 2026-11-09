@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings | BlahDNS</title>
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="options.js"></script>
+  </head>
+  <body>
+    <header class="page-header container">
+      <a class="wordmark" href="#filtering" aria-label="BlahDNS settings"
+        >BlahDNS <span>Browser extension</span></a
+      >
+      <div class="header-row">
+        <div>
+          <h1>Control your browsing settings</h1>
+          <p class="lead">
+            Settings and counters stay on this device. DNS checks and
+            subscriptions contact their servers.
+          </p>
+        </div>
+        <div class="header-actions">
+          <span
+            id="save-state"
+            class="save-state"
+            role="status"
+            aria-live="polite"
+            >Loading settings…</span
+          >
+          <button
+            id="save-button"
+            class="button button-primary"
+            type="button"
+            disabled
+          >
+            Save settings
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container settings-layout">
+      <nav class="tab-list" aria-label="Settings sections">
+        <a
+          class="tab-link"
+          id="tab-filtering"
+          href="#filtering"
+          aria-controls="panel-filtering"
+          >Filtering</a
+        >
+        <a
+          class="tab-link"
+          id="tab-privacy"
+          href="#privacy"
+          aria-controls="panel-privacy"
+          >Privacy</a
+        >
+        <a
+          class="tab-link"
+          id="tab-network"
+          href="#network"
+          aria-controls="panel-network"
+          >Network</a
+        >
+        <a
+          class="tab-link"
+          id="tab-data"
+          href="#data"
+          aria-controls="panel-data"
+          >Data</a
+        >
+      </nav>
+
+      <div class="settings-content">
+        <section
+          class="tab-panel"
+          id="panel-filtering"
+          aria-labelledby="tab-filtering"
+        >
+          <div class="panel-heading">
+            <h2>Blocking and site scope</h2>
+            <p>
+              Choose which rules to apply. Pause filtering for selected sites
+              when needed.
+            </p>
+          </div>
+
+          <section
+            class="setting-section"
+            aria-labelledby="filter-switches-title"
+          >
+            <h3 id="filter-switches-title">Filtering controls</h3>
+            <div class="toggle-list">
+              <label class="toggle-row"
+                ><input id="enabled" type="checkbox" /><span
+                  ><strong>Enable protection</strong
+                  ><small
+                    >When off, filtering stops and the extension releases its
+                    native privacy and proxy settings.</small
+                  ></span
+                ></label
+              >
+              <label class="toggle-row"
+                ><input id="adblock" type="checkbox" /><span
+                  ><strong>Use the bundled ad and tracker list</strong
+                  ><small
+                    >Custom rules and subscriptions remain active until
+                    protection is off.</small
+                  ></span
+                ></label
+              >
+              <label class="toggle-row"
+                ><input id="contentFarms" type="checkbox" /><span
+                  ><strong>Block content farms</strong
+                  ><small
+                    >Use the content farm domain list included with the
+                    extension.</small
+                  ></span
+                ></label
+              >
+              <label class="toggle-row"
+                ><input id="cleanUrls" type="checkbox" /><span
+                  ><strong>Clean tracking parameters</strong
+                  ><small
+                    >Remove known tracking parameters and keep parameters that
+                    may protect signed URLs.</small
+                  ></span
+                ></label
+              >
+            </div>
+          </section>
+
+          <section class="setting-section" aria-labelledby="filter-scope-title">
+            <h3 id="filter-scope-title">Filtering scope</h3>
+            <label class="field-label" for="mode">Apply filtering to</label>
+            <select id="mode">
+              <option value="global">All sites</option>
+              <option value="sites">Selected sites only</option>
+            </select>
+            <p class="field-help">
+              Domain rules use tree matching. Both <code>example.com</code> and
+              <code>*.example.com</code> include the apex domain and all
+              subdomains.
+            </p>
+            <label class="field-label" for="sites">Selected sites</label>
+            <textarea
+              id="sites"
+              rows="4"
+              spellcheck="false"
+              placeholder="example.com&#10;news.example.net"
+            ></textarea>
+            <p class="field-help">
+              Enter one domain or <code>*.example.com</code> per line. This list
+              is used only when selected sites are enabled.
+            </p>
+            <label class="field-label" for="exceptions"
+              >Filtering exceptions</label
+            >
+            <textarea
+              id="exceptions"
+              rows="3"
+              spellcheck="false"
+              placeholder="trusted.example.com"
+            ></textarea>
+            <p class="field-help">
+              Exceptions turn off filtering and privacy header changes for that
+              domain tree. They do not bypass the proxy.
+            </p>
+          </section>
+
+          <section class="setting-section" aria-labelledby="custom-rules-title">
+            <div class="section-title-row">
+              <h3 id="custom-rules-title">Custom rules</h3>
+              <button id="preview-button" class="button" type="button">
+                Preview rules
+              </button>
+            </div>
+            <p class="section-copy">
+              Add hosts rules or supported ABP rules. Diagnostics list rules
+              that cannot be converted safely.
+            </p>
+            <label class="field-label" for="customRules">Rule text</label>
+            <textarea
+              id="customRules"
+              class="code-field"
+              rows="9"
+              spellcheck="false"
+              placeholder="0.0.0.0 ads.example.net&#10;||tracker.example.org^"
+            ></textarea>
+            <label class="field-label" for="rule-file"
+              >Append a local hosts or ABP file</label
+            >
+            <input id="rule-file" type="file" accept=".txt,.list,text/plain" />
+            <div
+              id="rule-report"
+              class="report"
+              aria-live="polite"
+              hidden
+            ></div>
+          </section>
+
+          <section class="setting-section" aria-labelledby="subscription-title">
+            <div class="section-title-row">
+              <h3 id="subscription-title">HTTPS subscriptions</h3>
+              <button id="update-subscriptions" class="button" type="button">
+                Save and update subscriptions
+              </button>
+            </div>
+            <p class="section-copy">
+              Enter one HTTPS URL per line. Add up to 8 subscriptions, 2 MB
+              each. Custom rules and all subscription text share a 4 MB limit.
+              Cached rules and update times stay with a matching URL.
+            </p>
+            <label class="field-label" for="subscription-urls"
+              >Subscription URLs</label
+            >
+            <textarea
+              id="subscription-urls"
+              rows="4"
+              spellcheck="false"
+              placeholder="https://lists.example.net/hosts.txt"
+            ></textarea>
+            <p id="subscription-cache" class="field-help">
+              Loading subscription cache…
+            </p>
+          </section>
+        </section>
+
+        <section
+          class="tab-panel"
+          id="panel-privacy"
+          aria-labelledby="tab-privacy"
+          hidden
+        >
+          <div class="panel-heading">
+            <h2>Privacy controls</h2>
+            <p>
+              These use native browser controls. Changes apply to the whole
+              browser profile.
+            </p>
+          </div>
+
+          <section class="setting-section" aria-labelledby="webrtc-title">
+            <h3 id="webrtc-title">WebRTC IP addresses</h3>
+            <label class="field-label" for="webrtc">Policy</label>
+            <select id="webrtc">
+              <option value="native">Keep browser default</option>
+              <option value="public">Use public interfaces only</option>
+              <option value="proxy">Use proxy-routed interfaces only</option>
+            </select>
+            <p class="field-help">
+              This is a global browser setting. It may affect calls and other
+              real-time connections.
+            </p>
+            <p
+              id="privacy-status"
+              class="field-help"
+              role="status"
+              aria-live="polite"
+            ></p>
+          </section>
+
+          <section
+            class="setting-section"
+            aria-labelledby="fingerprinting-title"
+          >
+            <h3 id="fingerprinting-title">Browser fingerprinting</h3>
+            <label class="field-label" for="fingerprinting"
+              >Native anti-fingerprinting protection</label
+            >
+            <select id="fingerprinting">
+              <option value="native">Keep browser default</option>
+              <option value="resist">
+                Enable Firefox resistFingerprinting
+              </option>
+            </select>
+            <p id="rfp-capability" class="field-help">
+              This is a global setting. Only Firefox provides native
+              resistFingerprinting. Extension APIs in Chrome and Brave cannot
+              provide the same protection.
+            </p>
+            <details class="guidance">
+              <summary>About audio, Canvas, WebGL, and time zone</summary>
+              <p>
+                This extension does not inject noise or alter JavaScript
+                fingerprints. Firefox native resistFingerprinting can change
+                some signals globally. Chrome and Brave do not offer an
+                equivalent native control here. Use browser privacy settings
+                where available and set your time zone in the operating system
+                or browser. Audio, Canvas, WebGL, and time zone data can still
+                differ. A header change cannot make them consistent.
+              </p>
+              <p>
+                No setting can guarantee that a site will accept a CAPTCHA or
+                other risk check.
+              </p>
+            </details>
+          </section>
+
+          <section class="setting-section" aria-labelledby="language-title">
+            <h3 id="language-title">Language header</h3>
+            <label class="field-label" for="language">Accept-Language</label>
+            <select id="language">
+              <option value="native">Keep browser default</option>
+              <option value="en-US">Send en-US</option>
+            </select>
+            <p class="field-help">
+              This changes the HTTP header only. It does not change JavaScript
+              language, Client Hints, operating system language, or worker data.
+            </p>
+          </section>
+
+          <section class="setting-section" aria-labelledby="ua-title">
+            <h3 id="ua-title">User-Agent header</h3>
+            <label class="field-label" for="userAgent"
+              >Custom User-Agent (blank keeps the browser default)</label
+            >
+            <input
+              id="userAgent"
+              type="text"
+              maxlength="512"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Keep browser default"
+            />
+            <p class="field-help">
+              This changes the HTTP User-Agent header only. It does not change
+              JavaScript, Client Hints, TLS, or worker data. A mismatch may
+              break a site.
+            </p>
+          </section>
+        </section>
+
+        <section
+          class="tab-panel"
+          id="panel-network"
+          aria-labelledby="tab-network"
+          hidden
+        >
+          <div class="panel-heading">
+            <h2>DNS and proxy</h2>
+            <p>
+              The DNS check sends a fixed DNS-over-HTTPS POST query. It does not
+              change system DNS.
+            </p>
+          </div>
+
+          <section class="setting-section" aria-labelledby="dns-title">
+            <h3 id="dns-title">BlahDNS DNS-over-HTTPS</h3>
+            <label class="field-label" for="dnsRegion">Test region</label>
+            <select id="dnsRegion">
+              <option value="sg">Singapore</option>
+              <option value="de">Germany</option>
+            </select>
+            <button id="test-dns" class="button" type="button">
+              Test DNS connection
+            </button>
+            <div
+              id="dns-result"
+              class="result-box"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></div>
+            <details class="guidance">
+              <summary>Set up DoH manually in your browser</summary>
+              <p>
+                This extension does not control DNS for the browser, operating
+                system, or other apps. Open the browser Secure DNS or DNS over
+                HTTPS settings. Choose a custom provider and enter an endpoint:
+              </p>
+              <dl class="endpoint-list">
+                <div>
+                  <dt>Singapore</dt>
+                  <dd><code>https://doh-sg.blahdns.com/dns-query</code></dd>
+                </div>
+                <div>
+                  <dt>Germany</dt>
+                  <dd><code>https://doh-de.blahdns.com/dns-query</code></dd>
+                </div>
+              </dl>
+              <p>
+                Firefox: Settings → Privacy &amp; Security → DNS over HTTPS.
+                Chrome and Brave: Settings → Privacy and security → Security →
+                Use secure DNS. Menu names may change between versions.
+              </p>
+            </details>
+            <p class="field-help">
+              HTTP/2, HTTP/3, and QUIC support depends on the browser, server,
+              and network path. This extension does not force a protocol or
+              intercept all UDP and QUIC traffic.
+            </p>
+          </section>
+
+          <section class="setting-section" aria-labelledby="proxy-title">
+            <div class="section-title-row">
+              <h3 id="proxy-title">Proxy</h3>
+              <label class="inline-toggle"
+                ><input id="proxy-enabled" type="checkbox" />Enable proxy</label
+              >
+            </div>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="proxy-type">Type</label
+                ><select id="proxy-type">
+                  <option value="http">HTTP</option>
+                  <option value="https">HTTPS</option>
+                  <option value="socks4">SOCKS4</option>
+                  <option value="socks5">SOCKS5</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="proxy-host">Host name</label
+                ><input
+                  id="proxy-host"
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+              <div>
+                <label class="field-label" for="proxy-port">Port</label
+                ><input
+                  id="proxy-port"
+                  type="number"
+                  min="1"
+                  max="65535"
+                  step="1"
+                  inputmode="numeric"
+                />
+              </div>
+            </div>
+            <p class="field-help">
+              This version does not store proxy user names or passwords. When
+              the proxy is enabled, the browser asks for proxy permission before
+              saving.
+            </p>
+            <p
+              id="proxy-status"
+              class="field-help"
+              role="status"
+              aria-live="polite"
+            ></p>
+            <label class="field-label" for="proxy-mode">Apply proxy to</label>
+            <select id="proxy-mode">
+              <option value="global">All destination sites</option>
+              <option value="sites">Selected destination sites only</option>
+            </select>
+            <label class="field-label" for="proxy-sites"
+              >Proxy destination sites</label
+            >
+            <textarea
+              id="proxy-sites"
+              rows="3"
+              spellcheck="false"
+              placeholder="example.com"
+            ></textarea>
+            <p class="field-help">
+              Enter one destination domain per line. Both proxy lists use
+              domain-tree matching: <code>example.com</code> and
+              <code>*.example.com</code> include the apex and all subdomains.
+            </p>
+            <label class="field-label" for="proxy-bypass"
+              >Destinations that bypass the proxy</label
+            >
+            <textarea
+              id="proxy-bypass"
+              rows="3"
+              spellcheck="false"
+              placeholder="local.example.net"
+            ></textarea>
+            <p class="field-help">
+              Proxy scope uses the destination host name, not the tab host name.
+              Pausing filtering does not bypass the proxy. UDP and QUIC support
+              depends on the browser and proxy type.
+            </p>
+          </section>
+        </section>
+
+        <section
+          class="tab-panel"
+          id="panel-data"
+          aria-labelledby="tab-data"
+          hidden
+        >
+          <div class="panel-heading">
+            <h2>Local data</h2>
+            <p>
+              Settings and counters stay on this device. This extension does not
+              use telemetry or cloud sync.
+            </p>
+          </div>
+
+          <section class="setting-section" aria-labelledby="stats-title">
+            <div class="section-title-row">
+              <h3 id="stats-title">Statistics</h3>
+              <label class="inline-toggle"
+                ><input id="statsEnabled" type="checkbox" />Enable local
+                statistics</label
+              >
+            </div>
+            <p class="section-copy">
+              Counters store totals only. They do not store browsing history or
+              domain history.
+            </p>
+            <dl class="stats-list">
+              <div>
+                <dt>Links cleaned</dt>
+                <dd id="stat-cleaned" class="num">—</dd>
+              </div>
+              <div>
+                <dt>Pages with cosmetic rules</dt>
+                <dd id="stat-cosmetic" class="num">—</dd>
+              </div>
+              <div>
+                <dt>Requests blocked</dt>
+                <dd id="stat-blocked" class="num">—</dd>
+              </div>
+            </dl>
+            <p id="blocked-availability" class="field-help"></p>
+            <button id="reset-stats" class="button button-muted" type="button">
+              Reset statistics
+            </button>
+          </section>
+
+          <section class="setting-section" aria-labelledby="backup-title">
+            <h3 id="backup-title">Settings backup</h3>
+            <p class="section-copy">
+              Export uses the current saved settings. Save edits first. The
+              background validates the full JSON file before applying it;
+              invalid files do not apply partial settings.
+            </p>
+            <div class="button-row">
+              <button id="export-settings" class="button" type="button">
+                Export JSON
+              </button>
+            </div>
+            <label class="field-label" for="import-file">Settings file</label>
+            <input
+              id="import-file"
+              type="file"
+              accept="application/json,.json"
+            />
+            <div class="button-row">
+              <button id="apply-import" class="button" type="button" disabled>
+                Validate and apply import
+              </button>
+            </div>
+            <p id="import-name" class="field-help">
+              No settings file selected.
+            </p>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <p id="status" class="visually-hidden" role="status" aria-live="polite"></p>
+  </body>
+</html>

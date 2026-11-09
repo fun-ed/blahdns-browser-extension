@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-09T08:28:40.998Z",
+  "note": "Isolated profiles. Optional proxy permission pre-granted in a test-only copy; native optional permission prompt not covered. HTTP/2, HTTP/3, QUIC transport and CAPTCHA outcomes are not tested.",
+  "results": [
+    {
+      "browser": "chrome",
+      "checks": [
+        "test extension installed",
+        "default lists installed",
+        "settings UI save, file import, and serialized export payload",
+        "cosmetic filtering and link cleaning",
+        "HTTP request and WebSocket handshake blocked",
+        "navigation redirect and signed-URL exemption",
+        "UA/language request headers and native WebRTC read-back",
+        "wildcard pause releases network and cosmetic filtering",
+        "selected-site mode includes only the selected domain tree",
+        "invalid import leaves active settings intact",
+        "HTTP proxy routes selected destination with no direct fallback",
+        "SOCKS5 proxy receives the destination domain for remote DNS",
+        "settings reopen and screenshot"
+      ],
+      "status": "passed",
+      "version": "Chrome/157.0.8103.39"
+    },
+    {
+      "browser": "brave",
+      "checks": [
+        "test extension installed",
+        "default lists installed",
+        "settings UI save, file import, and serialized export payload",
+        "cosmetic filtering and link cleaning",
+        "HTTP request and WebSocket handshake blocked",
+        "navigation redirect and signed-URL exemption",
+        "UA/language request headers and native WebRTC read-back",
+        "wildcard pause releases network and cosmetic filtering",
+        "selected-site mode includes only the selected domain tree",
+        "invalid import leaves active settings intact",
+        "HTTP proxy routes selected destination with no direct fallback",
+        "SOCKS5 proxy receives the destination domain for remote DNS",
+        "settings reopen and screenshot"
+      ],
+      "status": "passed",
+      "version": "Chrome/157.0.8103.39"
+    },
+    {
+      "browser": "firefox",
+      "checks": ["test extension installed", "default lists installed"],
+      "status": "failed",
+      "version": "firefox/160.0",
+      "error": "Protocol error (input.setFiles): unsupported operation The command does not support browsing contexts in privileged scope RemoteError@chrome://remote/content/shared/RemoteError.sys.mjs:14:8\nWebDriverError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:169:5\nUnsupportedOperationError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:977:5\n_getNavigable@chrome://remote/content/webdriver-bidi/modules/RootBiDiModule.sys.mjs:186:15\nsetFiles@chrome://remote/content/webdriver-bidi/modules/root/input.sys.mjs:394:26\nhandleCommand@chrome://remote/content/shared/messagehandler/MessageHandler.sys.mjs:299:33\nexecute@chrome://remote/content/shared/webdriver/Session.sys.mjs:535:32\nonPacket@chrome://remote/content/webdriver-bidi/WebDriverBiDiConnection.sys.mjs:238:37\nonMessage@chrome://remote/content/server/WebSocketTransport.sys.mjs:127:18\nhandleEvent@chrome://remote/content/server/WebSocketTransport.sys.mjs:109:14\n"
+    }
+  ]
+}

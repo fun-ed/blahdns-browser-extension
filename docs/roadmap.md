@@ -1,0 +1,34 @@
+# Roadmap
+
+## 0.1.0 prerelease gates
+
+| Area                 | Current evidence                                                                                              | Status                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Filtering and scopes | Hosts/ABP/CSS boundaries, domain trees, exceptions, URL cleanup, and actual browser requests                  | Passed                                       |
+| List handling        | Pinned upstream revisions, GPL notices, original input, omitted rules, and SHA-256 checks                     | Passed                                       |
+| UI and data          | Settings-page save, File import handler, serialized export, and real aggregate counters in all three browsers | Passed                                       |
+| Native privacy       | WebRTC read-back in each browser and Firefox RFP read-back; no script fingerprint noise                       | Passed within the documented API scope       |
+| Proxy                | All four types validated in unit tests; live HTTP and SOCKS5 routes in each browser                           | Passed within the tested matrix              |
+| WebSocket            | Real handshake blocking in Chrome, Brave, and Firefox                                                         | Passed                                       |
+| DNS                  | SG/DE RFC8484 POST diagnostics return NOERROR; setup is manual                                                | Passed                                       |
+| Transport            | HTTP/2, HTTP/3, QUIC, and UDP limits documented against browser APIs                                          | Documented; transport negotiation not tested |
+| Security             | Two medium findings corrected and reinspected; regression tests pass                                          | Passed for the reviewed paths                |
+| Quality              | 36 unit tests, Bun lint, native format, package/hash checks, and compiler benchmark                           | Passed                                       |
+| Browser packages     | Chrome 14 checks, Brave 14, Firefox 15; isolated profiles and package checksums                               | Passed                                       |
+| GitHub release       | Local packages ready; remote publication/read-back is recorded in `docs/evals/release-output.json`            | Pending publication                          |
+
+See [the acceptance output](evals/acceptance-output.md) for versions, commands, evidence, and limits. A passed local gate does not prove a store review, every minimum browser version, or every proxy transport.
+
+## Next maintenance work
+
+These items are separate from this GitHub prerelease. They need their own acceptance evidence before any claim is added:
+
+- Submit store packages and obtain Firefox signing through the owner's store accounts.
+- Extend the matrix to the declared minimum browser versions and native permission dialogs.
+- Test authenticated HTTPS proxies, SOCKS4, WebRTC media, and HTTP/2/HTTP/3/QUIC behavior with controlled network fixtures.
+- Measure specific browser-native fingerprint surfaces and site compatibility without collecting user browsing history. Do not add per-read random noise or promise CAPTCHA acceptance.
+- Review list updates and their omitted syntax. Keep source revisions and evaluation records with each change.
+
+## Collaboration
+
+`CONTRACT.md` owns module interfaces. Keep parsers pure and browser adapters small. A change must update its affected callers, tests, and contract. Add a dependency or abstraction only for a measured need. Use the [development skill](../skills/extension-development/SKILL.md), [release skill](../skills/extension-release/SKILL.md), and [AGENTS gates](../AGENTS.md).

@@ -1,0 +1,9 @@
+{
+  "repository": "fun-ed/blahdns-browser-extension",
+  "tag": "v0.1.0",
+  "status": "pending-publication",
+  "localGates": "passed",
+  "artifactEvidence": "build-output.json",
+  "browserEvidence": "browser-output.json",
+  "note": "Remote publication and downloaded-asset read-back will replace this record after they occur."
+}

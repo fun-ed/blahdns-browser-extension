@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-09T08:18:49.368Z",
+  "note": "Isolated profiles. Optional proxy permission pre-granted in a test-only copy; native optional permission prompt not covered. HTTP/2, HTTP/3, QUIC transport and CAPTCHA outcomes are not tested.",
+  "results": [
+    {
+      "browser": "firefox",
+      "checks": [
+        "test extension installed",
+        "default lists installed",
+        "cosmetic filtering and link cleaning"
+      ],
+      "status": "failed",
+      "version": "firefox/160.0",
+      "error": "Expected values to be strictly equal:\n\n'open' !== 'blocked'\n"
+    }
+  ]
+}

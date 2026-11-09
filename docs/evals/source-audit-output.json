@@ -1,0 +1,7 @@
+{
+  "date": "2026-11-09T08:48:26.675Z",
+  "status": "passed",
+  "textFilesChecked": 79,
+  "scope": "Staged project text; checks private-key blocks and GitHub token shapes. Not a complete secret detector.",
+  "runtimeDependencies": 0
+}

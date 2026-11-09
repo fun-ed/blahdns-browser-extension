@@ -1,0 +1,22 @@
+{
+  "name": "blahdns-browser-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "test": "mise exec -- bun test",
+    "build": "mise exec -- bun tools/build.js",
+    "check": "mise exec -- bun tools/check.js",
+    "lint": "mise exec -- bun tools/lint.js",
+    "test:browser": "mise exec -- bun tools/browser-test.js",
+    "benchmark": "mise exec -- bun tools/benchmark.js",
+    "update:lists": "mise exec -- bun tools/update-lists.js"
+  },
+  "engines": {
+    "bun": ">=1.4.4"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
+  }
+}

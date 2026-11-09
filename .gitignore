@@ -1,0 +1,8 @@
+node_modules/
+dist/
+artifacts/
+.local-backups/
+.hallmark/
+.playwright-cli/
+.DS_Store
+package-lock.json

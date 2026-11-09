@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "bun": "1.4.4",
+  "outputs": [
+    {
+      "target": "chromium",
+      "path": "artifacts/blahdns-chromium-0.1.0.zip",
+      "bytes": 816054,
+      "sha256": "f7289fca7bf3247f0034ccc875106f97df551dc0f9bb4be9e2bdea3562cf2912"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.1.0.zip",
+      "bytes": 816117,
+      "sha256": "6722dafa110d5cbceb68a35df745b68bb8b684a2b66e473a8847a9b232c1b77c"
+    }
+  ]
+}
