@@ -1,8 +1,0 @@
-{
-  "tag_name": "v0.2.3",
-  "target_commitish": "687bd854c5bf8d913aa4f05114121009c0e6fa2b",
-  "name": "BlahDNS Browser Extension 0.2.3 preview",
-  "body": "BlahDNS Browser Extension 0.2.3 fixes Firefox proxy wake-up after an extension-process crash and makes native apply/release reporting match actual browser state.\n\n- Register Firefox proxy listeners synchronously before asynchronous permission queries. The regression test observes a stopped background, sends the first selected request through a local HTTP proxy and confirms restart.\n- Verify exact Chromium PAC contents after set and released control after clear. Reject failed native privacy/proxy release and restore previous settings and rules.\n- Show accurate optional proxy permission guidance on unmodified Chrome/Brave first install.\n\nValidation: 63 unit tests and 282 expectations; Chrome/Brave each 22 integration checks, Firefox 21 plus the crash/wake check; repeat ZIP/XPI hashes match. See the versioned acceptance output in the source tree.\n\nDownload the Chromium ZIP for Chrome/Brave and load its extracted folder containing manifest.json using Developer mode → Load unpacked. Firefox can temporarily load the intact unsigned XPI through about:debugging → This Firefox → Load Temporary Add-on. Firefox ZIP and XPI are byte-identical. Verify downloads against SHA256SUMS.\n\nThis is a development prerelease. Ordinary permanent Firefox installation requires Mozilla signing. Natural idle shutdown, native optional permission prompts, minimum browser versions, all proxy transports and CAPTCHA outcomes are not covered. DoH setup remains manual; native privacy controls are browser-wide.\n",
-  "prerelease": true,
-  "draft": false
-}

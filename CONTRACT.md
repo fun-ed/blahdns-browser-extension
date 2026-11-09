@@ -86,7 +86,7 @@ Cosmetic selectors must also have balanced quotes, brackets and parentheses, mat
 
 ## Development evidence
 
-Retain previous plans and contracts in `docs/plans/` and `docs/contracts/`. Record evaluation input, output, source version, command, and limitations in `docs/evals/`. Use plain English. These records contain decisions and test evidence, not credentials, browser profiles, or raw conversations.
+Keep useful current test results, source versions, commands and limitations in `docs/evals/<version>/`. Superseded plans, contracts and intermediate runs remain in Git history. Records must not contain credentials, browser profiles or raw conversations.
 
 ## Package formats
 

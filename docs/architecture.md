@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes the 0.2.2 implementation. See [validation evidence](evals/0.2.2/acceptance-output.md) for the tested versions and remaining limits.
+See [current verification](evals/0.2.4/acceptance-output.md) for tested browser versions and limits.
 
 ## Runtime flow
 
@@ -10,9 +10,7 @@ This document describes the 0.2.2 implementation. See [validation evidence](eval
 4. `extension/core/privacy.js` uses browser-native controls where available. `extension/core/proxy.js` configures browser proxy routing. `extension/core/dns.js` performs an explicit DoH endpoint diagnostic.
 5. `extension/ui/theme.js` resolves the saved System/Light/Dark preference for settings and popup. It changes extension CSS only; native media preference changes update System mode live.
 
-Opening settings or popup calls read-only `readPrivacy` and `readProxy` status queries. They inspect actual native values and control priority without setting, clearing or registering listeners. Saves/startup/rollback retain the explicit apply path. A mismatched setting is reported instead of silently repaired during a read.
-
-The extension runtime is JavaScript and browser DNR. It does not use a Rust/WASM matcher for each request. `adblock-rust` is a possible offline/build-time comparison or conversion tool, not a runtime dependency. Keep any Node-based evaluation build-time only; the repository's development and verification commands use mise-managed Bun.
+Settings and popup query actual native values and control priority without changing them. Startup, saves and rollback use the apply path. Apply/release operations verify read-back; failures reject the settings transaction and restore previous settings and rules.
 
 ## Filtering scope
 
@@ -50,7 +48,7 @@ The default list works offline. An explicit Update list action downloads the fix
 
 ## Proxy and transport limits
 
-The proxy settings accept HTTP, HTTPS, SOCKS4, and SOCKS5 endpoints. Routing can be global or selected by destination host, with domain bypass patterns. Firefox uses `proxy.onRequest`; Chromium uses its proxy settings/PAC support. The optional proxy permission is requested only when the user enables this feature. No credentials are stored.
+Proxy settings accept HTTP, HTTPS, SOCKS4 and SOCKS5 endpoints, with destination-host scopes and bypass patterns. Firefox uses `proxy.onRequest`, registered synchronously for event-page wake-up; Chromium uses mandatory PAC settings. The optional proxy permission is requested when enabled, and missing permission is reported separately from unavailable browser support. No credentials are stored. See the [Firefox lifecycle findings](research-firefox-proxy-event-page.md).
 
 The extension chooses a proxy route by destination hostname. HTTP/2, HTTP/3, QUIC, connection reuse, and proxy fallback are controlled by the browser and network stack. The extension cannot force a protocol or promise that every HTTP/3/QUIC connection follows the selected route. See [Chrome proxy settings](https://developer.chrome.com/docs/extensions/reference/api/proxy) and [Firefox `proxy.onRequest`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/proxy/onRequest).
 

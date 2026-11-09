@@ -1,6 +1,0 @@
-{
-  "status": "passed",
-  "scope": "Staged text, private-key delimiters and GitHub token shapes; not a complete secret detector.",
-  "textFiles": 20,
-  "runtimeDependencies": 0
-}

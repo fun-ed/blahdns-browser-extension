@@ -1,9 +1,0 @@
-{
-  "version": "0.2.2",
-  "status": "failed",
-  "scope": "Forced extension-process crash recovery in a disposable profile; natural idle is not covered.",
-  "browser": "firefox/160.0",
-  "crashNavigationError": "Protocol error (browsingContext.navigate): unknown error Error: NS_ERROR_NOT_IMPLEMENTED NavigationError@chrome://remote/content/shared/RemoteError.sys.mjs:34:5\n#checkLoadingState@chrome://remote/content/shared/Navigate.sys.mjs:348:30\nonStateChange@chrome://remote/content/shared/Navigate.sys.mjs:431:28\n",
-  "backgroundBeforeRequest": false,
-  "error": "Protocol error (browsingContext.navigate): unknown error Error: NS_ERROR_UNKNOWN_HOST #onNavigationCommitted@chrome://remote/content/shared/Navigate.sys.mjs:390:28\nemit@resource://gre/modules/EventEmitter.sys.mjs:156:19\n#forwardEvent@chrome://remote/content/shared/listeners/NavigationListener.sys.mjs:91:10\nemit@resource://gre/modules/EventEmitter.sys.mjs:156:19\n#onNavigationEvent@chrome://remote/content/shared/NavigationManager.sys.mjs:1038:10\nemit@resource://gre/modules/EventEmitter.sys.mjs:156:19\nnotifyNavigationCommitted@chrome://remote/content/shared/NavigationManager.sys.mjs:386:10\nnotifyNavigationCommitted@chrome://remote/content/shared/NavigationManager.sys.mjs:936:29\nreceiveMessage@chrome://remote/content/shared/js-process-actors/WebDriverDocumentInsertedParent.sys.mjs:25:16\n at http://wake-fixture.invalid/probe"
-}
