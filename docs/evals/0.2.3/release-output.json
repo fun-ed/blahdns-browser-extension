@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "url": "https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.3",
+  "source": "687bd854c5bf8d913aa4f05114121009c0e6fa2b",
+  "tag": "v0.2.3",
+  "tagCommit": "687bd854c5bf8d913aa4f05114121009c0e6fa2b",
+  "prerelease": true,
+  "assets": [
+    {
+      "name": "blahdns-chromium-0.2.3.zip",
+      "bytes": 1033288,
+      "sha256": "16f54c0f049af502f25d44fe65914641be31330e7d9f4a50978b69c8f01b8879",
+      "githubDigest": "sha256:16f54c0f049af502f25d44fe65914641be31330e7d9f4a50978b69c8f01b8879",
+      "status": "passed"
+    },
+    {
+      "name": "blahdns-firefox-0.2.3.zip",
+      "bytes": 1033350,
+      "sha256": "1aae01cfcc3ca309b074210e0e3b203cdb6596ea75b54642c9478d6f5f9c4496",
+      "githubDigest": "sha256:1aae01cfcc3ca309b074210e0e3b203cdb6596ea75b54642c9478d6f5f9c4496",
+      "status": "passed"
+    },
+    {
+      "name": "blahdns-firefox-0.2.3.xpi",
+      "bytes": 1033350,
+      "sha256": "1aae01cfcc3ca309b074210e0e3b203cdb6596ea75b54642c9478d6f5f9c4496",
+      "githubDigest": "sha256:1aae01cfcc3ca309b074210e0e3b203cdb6596ea75b54642c9478d6f5f9c4496",
+      "status": "passed"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 277,
+      "sha256": "0eef13525479fd00868529791296dfe654b7625521f4ffd119166c4ec4bef4b1",
+      "githubDigest": "sha256:0eef13525479fd00868529791296dfe654b7625521f4ffd119166c4ec4bef4b1",
+      "status": "passed"
+    }
+  ],
+  "previousTagsUnchanged": true,
+  "verification": "Independently downloaded all assets and compared bytes, SHA-256, checksum text and available GitHub digests against local artifacts."
+}

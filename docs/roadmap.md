@@ -2,13 +2,13 @@
 
 ## 0.2.3 prerelease gates
 
-| Area                  | Evidence                                                                                           | Status                           |
-| --------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Native postconditions | Exact PAC read-back; failed privacy/proxy release rolls back settings and rules                    | Passed                           |
-| Optional permission   | Unmodified Chrome/Brave first-install UI reports missing optional proxy access                     | Passed                           |
-| Firefox wake          | First selected HTTP request wakes the stopped background after an isolated extension-process crash | Passed; natural idle not covered |
-| Quality and packages  | 63 tests, 282 expectations; Chrome/Brave 22 checks each, Firefox 21 plus crash/wake                | Passed locally                   |
-| GitHub publication    | Exact-source CI and downloaded package verification                                                | Pending                          |
+| Area                  | Evidence                                                                                                                                             | Status                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| Native postconditions | Exact PAC read-back; failed privacy/proxy release rolls back settings and rules                                                                      | Passed                           |
+| Optional permission   | Unmodified Chrome/Brave first-install UI reports missing optional proxy access                                                                       | Passed                           |
+| Firefox wake          | First selected HTTP request wakes the stopped background after an isolated extension-process crash                                                   | Passed; natural idle not covered |
+| Quality and packages  | 63 tests, 282 expectations; Chrome/Brave 22 checks each, Firefox 21 plus crash/wake                                                                  | Passed locally                   |
+| GitHub publication    | [v0.2.3 prerelease](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.3); exact-source CI and four downloaded asset hashes match | Published and verified           |
 
 See [0.2.3 acceptance output](evals/0.2.3/acceptance-output.md). Previous release tags and assets are preserved.
 
