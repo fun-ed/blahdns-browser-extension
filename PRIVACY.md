@@ -1,15 +1,16 @@
 # Privacy policy
 
-Policy for the 0.1.0 preview. See [validation evidence](docs/evals/acceptance-output.md) for tested behavior and limits.
+Policy for the 0.2.0 preview. See [validation evidence](docs/evals/0.2.0/acceptance-output.md) for tested behavior and limits.
 
 ## What stays in your browser
 
-The extension is designed to keep its settings in browser-local storage. This includes enabled features, site scopes and exceptions, custom rules, subscription URLs and downloaded text, selected privacy settings, proxy address and port, and optional statistics. Proxy credentials are not stored by this extension.
+The extension keeps its settings in browser-local storage. This includes appearance, enabled features, site scopes and exceptions, custom rules, subscription URLs and downloaded text, selected privacy settings, proxy address and port, and optional statistics. A manually updated default list and its download timestamp are cached separately in local storage. Proxy credentials are not stored by this extension. Appearance affects extension pages only.
 
 The extension does not send browsing history, page URLs, or usage analytics to BlahDNS. It has no cloud settings sync or remote code. Network rules are applied by the browser's DNR API.
 
 ## Optional network requests
 
+- **Default BlahDNS Lite list:** The extension includes an offline ABP snapshot and makes no startup or scheduled update request. When you choose Update list, it downloads `https://oooo.b-cdn.net/blahdns/lite_adblocker.txt` without cookies or a referrer. The CDN can see ordinary request metadata, including your IP address. A successful update is cached locally; failure preserves previous rules.
 - **Filter subscriptions:** When you request an update, the extension downloads the configured HTTPS list. The list server can see the request and normal network metadata, such as your IP address. The extension omits credentials and the referrer. Subscription text is stored locally for rule compilation.
 - **DNS diagnostic:** When you choose Test DNS, the extension sends a fixed `example.com` A query to the selected endpoint: `https://doh-sg.blahdns.com/dns-query` or `https://doh-de.blahdns.com/dns-query`. The selected endpoint receives the query and ordinary connection metadata. This test does not configure DNS for the browser or device. Server-side logging and retention are governed by the endpoint operator's policy, which this extension cannot control.
 - **Proxy routing:** If enabled, matching destination traffic is sent to the proxy server you configured. That server can observe the traffic information its proxy protocol permits. The extension does not store proxy credentials.

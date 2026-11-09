@@ -1,6 +1,11 @@
+export const DEFAULT_ADBLOCK_URL =
+  "https://oooo.b-cdn.net/blahdns/lite_adblocker.txt";
+export const DEFAULT_ADBLOCK_MAX_BYTES = 4_000_000;
+
 export const DEFAULTS = {
   version: 1,
   enabled: true,
+  theme: "system",
   mode: "global",
   sites: [],
   exceptions: [],
@@ -101,6 +106,11 @@ export function validateSettings(input) {
   const s = {
     version: 1,
     enabled: bool(input.enabled, "enabled"),
+    theme: oneOf(
+      input.theme === undefined ? "system" : input.theme,
+      ["system", "light", "dark"],
+      "theme",
+    ),
     mode: oneOf(input.mode, ["global", "sites"], "mode"),
     sites: patterns(input.sites, "sites"),
     exceptions: patterns(input.exceptions, "exceptions"),
@@ -167,4 +177,15 @@ export function validateSettings(input) {
       "Custom rules and subscriptions must not exceed 4 MB of text.",
     );
   return s;
+}
+
+export function validateDefaultList(input) {
+  record(input, "default list cache");
+  if (input.url !== DEFAULT_ADBLOCK_URL)
+    throw new Error("Invalid default list source.");
+  return {
+    url: DEFAULT_ADBLOCK_URL,
+    text: text(input.text, DEFAULT_ADBLOCK_MAX_BYTES, "default list text"),
+    updatedAt: text(input.updatedAt, 64, "default list updatedAt"),
+  };
 }

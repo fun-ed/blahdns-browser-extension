@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 - 2026-11-09
+
+- Add System, Light, and Dark appearances for settings and popup. Preserve version-1 settings imports; missing appearance defaults to System. Website fingerprint values are unchanged.
+- Replace the default ad source with the owner's BlahDNS Lite ABP URL. Keep its original 114,578 supported rules in the offline snapshot; preserve a separate content-farm control. Default compilation covers 126,170 distinct domains in 921 DNR rules.
+- Add an explicit default-list update button, 4 MB download limit, local cache and transactional rollback. No scheduled or startup list fetch runs; custom subscription limits are unchanged.
+- Produce unsigned Firefox XPI alongside Chromium/Firefox ZIPs and SHA256SUMS. XPI and Firefox ZIP are byte-identical. Mozilla signing is still required for ordinary permanent Firefox installation.
+- Verify 40 unit tests and 204 expectations; Chrome and Brave each pass 17 integration checks, Firefox passes 18, including unmodified XPI installation. Light/Dark save-button contrast measures 5.35:1 and 10.68:1. Preserve prior release artifacts and versioned evaluation records.
+
 ## 0.1.0 - 2026-11-09
 
 Initial GitHub prerelease for manual installation.

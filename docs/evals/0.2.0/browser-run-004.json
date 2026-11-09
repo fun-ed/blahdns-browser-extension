@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-09T09:33:35.770Z",
+  "note": "Isolated profiles. Optional proxy permission pre-granted in a test-only copy; native optional permission prompt not covered. HTTP/2, HTTP/3, QUIC transport and CAPTCHA outcomes are not tested.",
+  "results": [
+    {
+      "browser": "firefox",
+      "checks": [
+        "unmodified unsigned XPI installs with proxy permission absent",
+        "test extension installed",
+        "default lists installed",
+        "light/dark preview and save, popup theme, and native System preference",
+        "BlahDNS Lite manual update and cached source status",
+        "settings UI save, file import, and serialized export payload",
+        "cosmetic filtering and link cleaning",
+        "HTTP request and WebSocket handshake blocked",
+        "opt-in statistics contain real aggregate counters without history",
+        "navigation redirect and signed-URL exemption",
+        "UA/language request headers and native WebRTC read-back",
+        "Firefox native fingerprint resistance read-back",
+        "wildcard pause releases network and cosmetic filtering",
+        "selected-site mode includes only the selected domain tree",
+        "invalid import leaves active settings intact",
+        "HTTP proxy routes selected destination with no direct fallback",
+        "SOCKS5 proxy receives the destination domain for remote DNS",
+        "settings reopen and screenshot"
+      ],
+      "status": "passed",
+      "version": "firefox/160.0",
+      "primaryButtonContrast": {
+        "light": 5.350838277360233,
+        "dark": 10.680195659983786
+      }
+    }
+  ]
+}

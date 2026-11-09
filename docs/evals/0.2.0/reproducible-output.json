@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "bun": "1.4.4",
+  "status": "passed",
+  "method": "Two builds from unchanged package inputs with fixed ZIP timestamps; all output byte lengths and SHA-256 hashes match.",
+  "outputs": [
+    {
+      "target": "chromium",
+      "path": "artifacts/blahdns-chromium-0.2.0.zip",
+      "bytes": 1032530,
+      "sha256": "c273924dacccbd00ed8873aa328d737f893d07096348de39de67dc1dda84a399"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.2.0.zip",
+      "bytes": 1032593,
+      "sha256": "e7b52325f84fdfca1ffd210e5139d0e02e994500e4a9c0c31005a7da510237a5"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.2.0.xpi",
+      "bytes": 1032593,
+      "sha256": "e7b52325f84fdfca1ffd210e5139d0e02e994500e4a9c0c31005a7da510237a5"
+    }
+  ]
+}

@@ -1,16 +1,15 @@
 [
   {
     "name": "ads",
-    "repo": "hagezi/dns-blocklists",
-    "branch": "main",
-    "path": "wildcard/light-onlydomains.txt",
-    "license": "GPL-3.0-only",
-    "revision": "5c992c35301e6f3e4c84181b1dfd51873ca35a21",
-    "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/5c992c35301e6f3e4c84181b1dfd51873ca35a21/wildcard/light-onlydomains.txt",
-    "retrievedAt": "2026-11-09T07:47:14.726Z",
-    "inputSha256": "8cf07f8a21f34d3b47f08e2140d70d21eeb1bb9037a26c30b6025fb044fe1f3e",
-    "outputSha256": "be335e62a2b8586afc9d1823d520a70916dd16f468654369a1a0a512b799a71b",
-    "domains": 88382,
+    "url": "https://oooo.b-cdn.net/blahdns/lite_adblocker.txt",
+    "format": "abp",
+    "license": "Upstream component licenses apply; see NOTICE.md",
+    "revision": "fedb8ae53ab2ee205bb5045594c49bf970cf8e01d205ce5a1c907f8e2621fbc2",
+    "retrievedAt": "2026-11-09T09:13:48.019Z",
+    "inputSha256": "fedb8ae53ab2ee205bb5045594c49bf970cf8e01d205ce5a1c907f8e2621fbc2",
+    "outputSha256": "fedb8ae53ab2ee205bb5045594c49bf970cf8e01d205ce5a1c907f8e2621fbc2",
+    "domains": 113933,
+    "networkRules": 645,
     "skipped": []
   },
   {
@@ -21,10 +20,11 @@
     "license": "GPL-3.0-only",
     "revision": "ec753b1f2f35e2f932879a538aafabb85e805b71",
     "url": "https://raw.githubusercontent.com/danny0838/content-farm-terminator/ec753b1f2f35e2f932879a538aafabb85e805b71/src/blocklist/content-farms.txt",
-    "retrievedAt": "2026-11-09T07:47:15.575Z",
+    "retrievedAt": "2026-11-09T09:13:50.296Z",
     "inputSha256": "37b29b38378080d152c4d3662df75038148724660edea2e1c24796382a1e2d11",
     "outputSha256": "e7b8d89b8276aab227cb0119d413010aaa21318b160b166b61f3b1f1d580887c",
     "domains": 12249,
+    "networkRules": 0,
     "skipped": [
       "/^https?://(?!www\\.)(?:[\\w-]+\\.)+y2mate\\.com//",
       "domain-path:ettoday.net/dalemon",

@@ -105,7 +105,7 @@
               >
               <label class="toggle-row"
                 ><input id="adblock" type="checkbox" /><span
-                  ><strong>Use the bundled ad and tracker list</strong
+                  ><strong>Use the BlahDNS Lite ABP list</strong
                   ><small
                     >Custom rules and subscriptions remain active until
                     protection is off.</small
@@ -131,6 +131,27 @@
                 ></label
               >
             </div>
+          </section>
+
+          <section class="setting-section" aria-labelledby="default-list-title">
+            <div class="section-title-row">
+              <h3 id="default-list-title">Default list source</h3>
+              <button id="update-default-list" class="button" type="button">
+                Update list
+              </button>
+            </div>
+            <p class="section-copy">
+              The default ad and tracker rules come from
+              <a
+                href="https://oooo.b-cdn.net/blahdns/lite_adblocker.txt"
+                target="_blank"
+                rel="noreferrer"
+                >BlahDNS Lite ABP</a
+              >. Fetch updates only when you choose Update list.
+            </p>
+            <p id="default-list-status" class="field-help">
+              Loading list status…
+            </p>
           </section>
 
           <section class="setting-section" aria-labelledby="filter-scope-title">
@@ -493,6 +514,20 @@
               use telemetry or cloud sync.
             </p>
           </div>
+
+          <section class="setting-section" aria-labelledby="appearance-title">
+            <label id="appearance-title" class="field-label" for="theme"
+              >Appearance</label
+            >
+            <select id="theme">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+            <p class="field-help">
+              System follows your operating system theme.
+            </p>
+          </section>
 
           <section class="setting-section" aria-labelledby="stats-title">
             <div class="section-title-row">

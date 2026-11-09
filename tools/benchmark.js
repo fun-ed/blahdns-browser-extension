@@ -32,9 +32,10 @@ const output = {
   decision:
     "Use native browser DNR for request matching. Keep JavaScript for bounded compilation. Bun owns development tooling. Reconsider Rust/WASM only after a measured runtime bottleneck. These results do not compare language performance.",
 };
-await mkdir("docs/evals", { recursive: true });
+const directory = `docs/evals/${(await Bun.file("package.json").json()).version}`;
+await mkdir(directory, { recursive: true });
 await writeFile(
-  "docs/evals/benchmark-output.json",
+  `${directory}/benchmark-output.json`,
   JSON.stringify(output, null, 2) + "\n",
 );
 console.log(JSON.stringify(output, null, 2));

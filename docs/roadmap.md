@@ -1,5 +1,18 @@
 # Roadmap
 
+## 0.2.0 prerelease gates
+
+| Area                     | Evidence                                                                                                     | Status                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| Appearance               | Saved Light/Dark in settings and popup; native System; screenshots and measured button contrast              | Passed                               |
+| Default source           | Unchanged BlahDNS Lite ABP snapshot; manual update/cache in all browsers; rejected input and rollback checks | Passed                               |
+| XPI                      | Byte-identical Firefox ZIP/XPI; real unmodified XPI installation without proxy permission                    | Passed; unsigned development package |
+| Quality and matrix       | 40 unit tests, 204 expectations; Chrome 17, Brave 17, Firefox 18; native lint/format/package checks          | Passed                               |
+| Reproducibility and cost | ZIP/XPI repeated-build SHA-256 match; versioned compiler-only benchmark                                      | Passed                               |
+| GitHub publication       | Exact-source CI, new tag and downloaded-asset verification                                                   | Pending                              |
+
+See [0.2.0 acceptance output](evals/0.2.0/acceptance-output.md). Previous release evidence remains below; v0.1.0 artifacts and tag are preserved.
+
 ## 0.1.0 prerelease gates
 
 | Area                 | Current evidence                                                                                                                                                        | Status                                       |

@@ -1,5 +1,8 @@
 import {
   DEFAULTS,
+  DEFAULT_ADBLOCK_URL,
+  DEFAULT_ADBLOCK_MAX_BYTES,
+  validateDefaultList,
   validateSettings,
   isActive,
   normalizeHost,
@@ -22,7 +25,8 @@ const enqueue = (work) => {
   return task;
 };
 let bundled;
-async function sources(settings) {
+let defaultList = null;
+async function sources(settings, prospectiveList = defaultList) {
   bundled ??= Promise.all(
     ["ads", "farms"].map(async (name) => {
       const response = await fetch(api.runtime.getURL(`lists/${name}.txt`));
@@ -33,15 +37,21 @@ async function sources(settings) {
   );
   const lists = await bundled;
   return [
-    ...lists.filter((s) =>
-      s.name === "ads" ? settings.adblock : settings.contentFarms,
-    ),
+    ...lists
+      .filter((s) =>
+        s.name === "ads" ? settings.adblock : settings.contentFarms,
+      )
+      .map((s) =>
+        s.name === "ads" && prospectiveList
+          ? { name: s.name, text: prospectiveList.text }
+          : s,
+      ),
     { name: "custom", text: settings.customRules },
     ...settings.subscriptions.map((s) => ({ name: s.url, text: s.text })),
   ];
 }
-async function compile(settings) {
-  return compileRules(settings, await sources(settings));
+async function compile(settings, prospectiveList = defaultList) {
+  return compileRules(settings, await sources(settings, prospectiveList));
 }
 async function installRules(result) {
   for (const rule of result.rules.filter((r) => r.condition.regexFilter)) {
@@ -91,13 +101,18 @@ async function apply(settings, result) {
   )
     throw new Error(proxy.message ?? "The proxy could not be applied.");
 }
-async function save(input) {
+async function save(input, prospectiveList = defaultList) {
   const next = validateSettings(input);
-  const result = await compile(next);
+  const result = await compile(next, prospectiveList);
   const previous = current;
   try {
     await apply(next, result);
-    await api.storage.local.set({ settings: next });
+    await api.storage.local.set({
+      settings: next,
+      ...(prospectiveList !== defaultList
+        ? { defaultList: prospectiveList }
+        : {}),
+    });
   } catch (error) {
     try {
       if (previous) await apply(previous, await compile(previous));
@@ -108,6 +123,7 @@ async function save(input) {
     }
     throw error;
   }
+  defaultList = prospectiveList;
   current = next;
   compiled = result;
   lastError = null;
@@ -130,6 +146,10 @@ async function state() {
   return {
     ok: true,
     settings: current,
+    defaultList: {
+      url: DEFAULT_ADBLOCK_URL,
+      updatedAt: defaultList?.updatedAt ?? null,
+    },
     report: compiled.report,
     stats: {
       cleanedLinks: 0,
@@ -209,7 +229,7 @@ async function count(kind, amount = 1) {
   stats[kind] = Math.min(Number.MAX_SAFE_INTEGER, (stats[kind] ?? 0) + amount);
   await api.storage.local.set({ stats });
 }
-async function fetchSubscription(url) {
+async function fetchSubscription(url, maxBytes = 2_000_000) {
   const response = await fetch(url, {
     credentials: "omit",
     cache: "no-cache",
@@ -229,9 +249,9 @@ async function fetchSubscription(url) {
     const { value, done } = await reader.read();
     if (done) break;
     bytes += value.byteLength;
-    if (bytes > 2_000_000) {
+    if (bytes > maxBytes) {
       await reader.cancel();
-      throw new Error("Subscription exceeds 2 MB.");
+      throw new Error(`Subscription exceeds ${maxBytes / 1_000_000} MB.`);
     }
     text += decoder.decode(value, { stream: true });
   }
@@ -247,8 +267,11 @@ const ready = enqueue(async () => {
     await api.storage.local.setAccessLevel?.({
       accessLevel: "TRUSTED_CONTEXTS",
     });
-    const stored = await api.storage.local.get("settings");
+    const stored = await api.storage.local.get(["settings", "defaultList"]);
     current = validateSettings(stored.settings ?? current);
+    defaultList = stored.defaultList
+      ? validateDefaultList(stored.defaultList)
+      : null;
     compiled = await compile(current);
     await apply(current, compiled);
   } catch (error) {
@@ -291,6 +314,23 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
         };
       case "testDns":
         return { ok: true, result: await testDns(message.region) };
+      case "updateDefaultList": {
+        const downloaded = validateDefaultList(
+          await fetchSubscription(
+            DEFAULT_ADBLOCK_URL,
+            DEFAULT_ADBLOCK_MAX_BYTES,
+          ),
+        );
+        const parsed = compileRules(
+          { ...current, enabled: true, mode: "global" },
+          [{ name: "BlahDNS Lite", text: downloaded.text }],
+        ).report;
+        if (parsed.accepted < 1000 || parsed.unsupported.length)
+          throw new Error(
+            "The default list is unexpectedly small or contains unsupported rules. Previous rules were kept.",
+          );
+        return save(current, downloaded);
+      }
       case "updateSubscriptions": {
         const subscriptions = [];
         for (const entry of current.subscriptions)

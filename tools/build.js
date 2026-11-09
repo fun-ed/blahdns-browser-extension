@@ -98,6 +98,11 @@ for (const target of ["chromium", "firefox"]) {
     bytes: bytes.byteLength,
     sha256: createHash("sha256").update(new Uint8Array(bytes)).digest("hex"),
   });
+  if (target === "firefox") {
+    const xpi = archive.replace(/\.zip$/, ".xpi");
+    await cp(archive, xpi);
+    outputs.push({ ...outputs.at(-1), path: xpi });
+  }
 }
 await writeFile(
   "artifacts/SHA256SUMS",

@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes the 0.1.0 implementation. See [validation evidence](evals/acceptance-output.md) for the tested versions and remaining limits.
+This document describes the 0.2.0 implementation. See [validation evidence](evals/0.2.0/acceptance-output.md) for the tested versions and remaining limits.
 
 ## Runtime flow
 
@@ -8,6 +8,7 @@ This document describes the 0.1.0 implementation. See [validation evidence](eval
 2. `extension/background.js` loads bundled and user-provided list text, stores settings locally, compiles rules, and updates browser DNR rules.
 3. `extension/core/rules.js` converts supported hosts, ABP network, and CSS cosmetic syntax. `extension/content.js` cleans links. The background uses `scripting.insertCSS` for sender-scoped cosmetic rules so page CSP cannot block them.
 4. `extension/core/privacy.js` uses browser-native controls where available. `extension/core/proxy.js` configures browser proxy routing. `extension/core/dns.js` performs an explicit DoH endpoint diagnostic.
+5. `extension/ui/theme.js` resolves the saved System/Light/Dark preference for settings and popup. It changes extension CSS only; native media preference changes update System mode live.
 
 The extension runtime is JavaScript and browser DNR. It does not use a Rust/WASM matcher for each request. `adblock-rust` is a possible offline/build-time comparison or conversion tool, not a runtime dependency. Keep any Node-based evaluation build-time only; the repository's development and verification commands use mise-managed Bun.
 
@@ -39,7 +40,9 @@ Firefox matches WebSocket handshakes as HTTP(S) URLs. The compiler adds a WebSoc
 
 Comments and empty lines are counted as ignored. Unsupported modifiers, malformed hostnames, scriptlets, procedural or extended CSS, unsafe selectors, and unsupported regex features are reported with source and line diagnostics. No unsupported syntax should be described as working. The compiler currently rejects more than 4,500 total rules or 900 regex rules; browser quotas and behavior can also vary. See [Chrome DNR](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest) and the [uBlock Origin Lite FAQ](<https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)>) for platform context.
 
-The bundled `ads` and `farms` snapshots have upstream revisions, license identifiers, and input/output SHA-256 hashes in `extension/lists/sources.json`; full source files are kept under `data/upstream/`. Current domain counts and skipped farm entries are recorded in that metadata rather than duplicated here. Both bundled lists are domain-only and provide no default cosmetic selectors; custom rules or subscriptions may use the supported cosmetic subset. Refreshing a snapshot is a deliberate source change and requires reviewing its recorded omissions.
+The `ads` snapshot is the original BlahDNS Lite ABP file from `https://oooo.b-cdn.net/blahdns/lite_adblocker.txt`; it retains supported network syntax instead of being reduced to domains. The `farms` snapshot is a domain-only projection of Content Farm Terminator. Source URLs, revisions or content hashes, license notes, input/output SHA-256 and parser counts are recorded in `extension/lists/sources.json`; full inputs remain under `data/upstream/`.
+
+The default list works offline. An explicit Update list action downloads the fixed HTTPS URL without credentials, referrer or redirects, with a 4 MB bound. The background validates the prospective cache and compiles it before applying the existing settings transaction. A failed application or persistence step reapplies the old source; only a successful transaction updates the separate local cache. Custom subscriptions retain their existing bounds and manual update flow. No startup or scheduled request runs.
 
 ## Proxy and transport limits
 

@@ -50,3 +50,49 @@
   --gutter: 32px;
   --gap-columns: 24px;
 }
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-paper: oklch(97.5% 0.004 250);
+  --color-paper-2: oklch(94.8% 0.008 250);
+  --color-paper-3: oklch(99.4% 0.003 250);
+  --color-ink: oklch(23% 0.012 250);
+  --color-ink-2: oklch(37% 0.014 250);
+  --color-muted: oklch(47% 0.016 250);
+  --color-rule: oklch(87% 0.01 250);
+  --color-rule-2: oklch(68% 0.014 250);
+  --color-accent: oklch(52% 0.14 78);
+  --color-accent-ink: oklch(99% 0.002 80);
+  --color-accent-soft: oklch(93.5% 0.035 80);
+  --color-focus: oklch(52% 0.15 250);
+  --color-cool: oklch(47% 0.14 245);
+  --color-cool-soft: oklch(94% 0.035 245);
+  --color-ok: oklch(42% 0.13 150);
+  --color-ok-soft: oklch(93% 0.04 150);
+  --color-bad: oklch(47% 0.17 25);
+  --color-bad-soft: oklch(94% 0.035 25);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --color-paper: oklch(97.5% 0.004 250);
+    --color-paper-2: oklch(94.8% 0.008 250);
+    --color-paper-3: oklch(99.4% 0.003 250);
+    --color-ink: oklch(23% 0.012 250);
+    --color-ink-2: oklch(37% 0.014 250);
+    --color-muted: oklch(47% 0.016 250);
+    --color-rule: oklch(87% 0.01 250);
+    --color-rule-2: oklch(68% 0.014 250);
+    --color-accent: oklch(52% 0.14 78);
+    --color-accent-ink: oklch(99% 0.002 80);
+    --color-accent-soft: oklch(93.5% 0.035 80);
+    --color-focus: oklch(52% 0.15 250);
+    --color-cool: oklch(47% 0.14 245);
+    --color-cool-soft: oklch(94% 0.035 245);
+    --color-ok: oklch(42% 0.13 150);
+    --color-ok-soft: oklch(93% 0.04 150);
+    --color-bad: oklch(47% 0.17 25);
+    --color-bad-soft: oklch(94% 0.035 25);
+  }
+}

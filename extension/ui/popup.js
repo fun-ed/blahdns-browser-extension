@@ -1,4 +1,5 @@
 import { isActive, matchesPattern } from "../core/settings.js";
+import { setTheme } from "./theme.js";
 
 const api = globalThis.browser ?? globalThis.chrome;
 const byId = (id) => document.getElementById(id);
@@ -86,6 +87,7 @@ function updateSiteAction() {
 
 function render(state) {
   popupState.settings = state.settings;
+  setTheme(state.settings.theme ?? "system");
   popupState.capabilities = state.capabilities ?? {};
   const enabled = state.settings.enabled;
   const badge = byId("global-state");

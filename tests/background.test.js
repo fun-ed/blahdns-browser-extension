@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { DEFAULTS } from "../extension/core/settings.js";
+import { DEFAULTS, DEFAULT_ADBLOCK_URL } from "../extension/core/settings.js";
 
 let instance = 0;
 async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
@@ -67,7 +67,13 @@ async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
     storage: {
       local: {
         setAccessLevel: async () => {},
-        get: async (key) => ({ [key]: structuredClone(storage[key]) }),
+        get: async (keys) =>
+          Object.fromEntries(
+            (Array.isArray(keys) ? keys : [keys]).map((key) => [
+              key,
+              structuredClone(storage[key]),
+            ]),
+          ),
         set: async (input) => {
           if (failNextWrite && input.settings) {
             failNextWrite = false;
@@ -223,6 +229,72 @@ test("subscription redirect rejection keeps the cached rules unchanged", async (
     const result = await f.send({ type: "updateSubscriptions" });
     expect(result.ok).toBe(false);
     expect(f.storage.settings.subscriptions).toEqual(settings.subscriptions);
+  } finally {
+    f.restore();
+  }
+});
+
+test("default list updates replace the source and storage failure restores the old cache and rules", async () => {
+  const f = await backgroundFixture();
+  try {
+    await f.send({ type: "getState" });
+    let prefix = "new";
+    globalThis.fetch = async (url, options) => {
+      expect(url).toBe(DEFAULT_ADBLOCK_URL);
+      expect(options.credentials).toBe("omit");
+      expect(options.redirect).toBe("error");
+      const body = Array.from(
+        { length: 1000 },
+        (_, i) => `||${prefix}${i}.example^`,
+      ).join("\n");
+      const response = new Response(body);
+      Object.defineProperty(response, "url", { value: url });
+      return response;
+    };
+    const updated = await f.send({ type: "updateDefaultList" });
+    expect(updated.ok).toBe(true);
+    expect(updated.defaultList.url).toBe(DEFAULT_ADBLOCK_URL);
+    expect(updated.report.domains).toBe(1001);
+    const cache = structuredClone(f.storage.defaultList),
+      rules = f.rules();
+    prefix = "replacement";
+    f.failWrite();
+    const failed = await f.send({ type: "updateDefaultList" });
+    expect(failed.ok).toBe(false);
+    expect(failed.error).toContain("Fixture storage failure");
+    expect(f.storage.defaultList).toEqual(cache);
+    expect(f.rules()).toEqual(rules);
+    expect((await f.send({ type: "getState" })).defaultList).toEqual(
+      updated.defaultList,
+    );
+  } finally {
+    f.restore();
+  }
+});
+
+test("invalid or oversized default downloads cannot replace active rules", async () => {
+  const f = await backgroundFixture();
+  try {
+    await f.send({ type: "getState" });
+    const before = f.rules();
+    for (const [body, contentType, error] of [
+      ["<html>error</html>", "text/html", "HTML"],
+      ["x".repeat(4_000_001), "text/plain", "4 MB"],
+      ["||small.example^", "text/plain", "unexpectedly small"],
+    ]) {
+      globalThis.fetch = async (url) => {
+        const response = new Response(body, {
+          headers: { "content-type": contentType },
+        });
+        Object.defineProperty(response, "url", { value: url });
+        return response;
+      };
+      const result = await f.send({ type: "updateDefaultList" });
+      expect(result.ok).toBe(false);
+      expect(result.error).toContain(error);
+      expect(f.rules()).toEqual(before);
+      expect(f.storage.defaultList).toBeUndefined();
+    }
   } finally {
     f.restore();
   }

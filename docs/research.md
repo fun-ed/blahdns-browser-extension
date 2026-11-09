@@ -1,6 +1,6 @@
 # Research notes
 
-Research conclusions were checked against the linked sources. Runtime evidence is recorded separately in [acceptance output](evals/acceptance-output.md).
+Research conclusions were checked against the linked sources. Current runtime evidence is recorded separately in [0.2.0 acceptance output](evals/0.2.0/acceptance-output.md); earlier 0.1.0 records are retained.
 
 Sources checked: 2026-11-09.
 
@@ -16,7 +16,7 @@ Sources: [Chrome DNR API](https://developer.chrome.com/docs/extensions/reference
 
 ## Bundled list snapshot
 
-The current domain counts and omitted farm entries are recorded with source revisions and hashes in `extension/lists/sources.json`; full upstream files are under `data/upstream/`. Both baseline lists are domain-only and provide no default cosmetic selectors. The first-conversion issue and correction are recorded in [the list conversion evaluation](evals/list-conversion-output.md).
+The owner selected [BlahDNS Lite ABP](https://oooo.b-cdn.net/blahdns/lite_adblocker.txt) as the 0.2.0 default. Inspection found 114,578 supported rules: 113,933 domain entries and 645 other network rules, with no unsupported input. Preserve its original bytes and pin the mutable CDN response by SHA-256. Keep the separate Content Farm Terminator domain projection. Source URLs, hashes, counts and omitted farm entries are in `extension/lists/sources.json`; inputs remain under `data/upstream/`. The [first-conversion evaluation](evals/list-conversion-output.md) describes the earlier 0.1.0 conversion, not the current raw ABP snapshot.
 
 ## Fingerprinting and browser compatibility
 
@@ -52,4 +52,4 @@ Community commentary was checked only as anecdotal context. A [Reddit discussion
 
 ## Source limitations
 
-The repository has a compiler-only benchmark on Bun 1.4.4 / darwin arm64 with one warm-up and 20 measured iterations. See the current [benchmark output](evals/benchmark-output.json). It does not measure browser request latency or compare Rust/WASM or Node. Browser verification has its own [matrix and limitations](evals/acceptance-output.md).
+The repository has a compiler-only benchmark on Bun 1.4.4 / darwin arm64 with one warm-up and 20 measured iterations. See the current [benchmark output](evals/0.2.0/benchmark-output.json). It does not measure browser request latency or compare Rust/WASM or Node. Browser verification has its own [matrix and limitations](evals/0.2.0/acceptance-output.md).

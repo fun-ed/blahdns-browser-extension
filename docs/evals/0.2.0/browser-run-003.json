@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-09T09:32:13.951Z",
+  "note": "Isolated profiles. Optional proxy permission pre-granted in a test-only copy; native optional permission prompt not covered. HTTP/2, HTTP/3, QUIC transport and CAPTCHA outcomes are not tested.",
+  "results": [
+    {
+      "browser": "firefox",
+      "checks": [
+        "unmodified unsigned XPI installs with proxy permission absent",
+        "test extension installed",
+        "default lists installed"
+      ],
+      "status": "failed",
+      "version": "firefox/160.0",
+      "primaryButtonContrast": {
+        "light": 5.350838277360233
+      },
+      "error": "Protocol error (browsingContext.activate): unsupported operation The command does not support browsing contexts in privileged scope RemoteError@chrome://remote/content/shared/RemoteError.sys.mjs:14:8\nWebDriverError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:169:5\nUnsupportedOperationError@chrome://remote/content/shared/webdriver/Errors.sys.mjs:977:5\n_getNavigable@chrome://remote/content/webdriver-bidi/modules/RootBiDiModule.sys.mjs:186:15\nactivate@chrome://remote/content/webdriver-bidi/modules/root/browsingContext.sys.mjs:340:26\nhandleCommand@chrome://remote/content/shared/messagehandler/MessageHandler.sys.mjs:299:33\nexecute@chrome://remote/content/shared/webdriver/Session.sys.mjs:535:32\nonPacket@chrome://remote/content/webdriver-bidi/WebDriverBiDiConnection.sys.mjs:238:37\nonMessage@chrome://remote/content/server/WebSocketTransport.sys.mjs:127:18\nhandleEvent@chrome://remote/content/server/WebSocketTransport.sys.mjs:109:14\n"
+    }
+  ]
+}

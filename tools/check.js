@@ -17,11 +17,14 @@ for (const source of sources) {
     source.inputSha256,
     `${source.name} original checksum`,
   );
-  assert.equal(
-    parseList(text).network.length,
-    0,
-    `${source.name} must contain only domain rules`,
-  );
+  if (source.format === "abp")
+    assert.equal(text, original, "ABP source must be preserved unchanged");
+  else
+    assert.equal(
+      parseList(text).network.length,
+      0,
+      `${source.name} must contain only domain rules`,
+    );
   lists.push({ name: source.name, text });
 }
 const compiled = compileRules(structuredClone(DEFAULTS), lists);
@@ -59,6 +62,15 @@ for (const target of ["chromium", "firefox"]) {
     assert(await Bun.file(`dist/${target}/${path}`).exists(), path);
 }
 const build = await Bun.file("artifacts/build.json").json();
+assert.deepEqual(
+  build.outputs.map((output) => output.path.split(".").at(-1)),
+  ["zip", "zip", "xpi"],
+);
+assert.equal(
+  build.outputs[1].sha256,
+  build.outputs[2].sha256,
+  "Firefox XPI must be byte-identical to Firefox ZIP",
+);
 for (const output of build.outputs) {
   assert.equal(
     new Bun.CryptoHasher("sha256")
@@ -74,5 +86,5 @@ for (const output of build.outputs) {
     throw new Error(await new Response(check.stderr).text());
 }
 console.log(
-  `Package checks passed. ${compiled.report.domains} distinct domains in ${compiled.report.rules} DNR rules. Both ZIP archives and source hashes match.`,
+  `Package checks passed. ${compiled.report.domains} distinct domains in ${compiled.report.rules} DNR rules. ZIP/XPI archives and source hashes match.`,
 );

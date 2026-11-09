@@ -6,6 +6,8 @@ import { createHash } from "node:crypto";
 import { cp, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { DEFAULT_ADBLOCK_URL } from "../extension/core/settings.js";
+const packageVersion = (await Bun.file("package.json").json()).version;
 
 const config = {
   chrome:
@@ -143,6 +145,7 @@ try {
         extraPrefsFirefox: {
           "extensions.webextensions.warnings-as-errors": false,
           "network.proxy.type": 0,
+          "extensions.webextensions.keepUuidOnUninstall": true,
           "extensions.webextensions.uuids": JSON.stringify({
             "browser-extension@blahdns.com":
               "7d8dd33f-49e7-479e-a85b-283a03d2b42b",
@@ -152,6 +155,31 @@ try {
       console.log(`${name}: launched isolated browser`);
       record.version = await browser.version();
       console.log(`${name}: ${record.version}`);
+      if (name === "firefox") {
+        const id = await browser.installExtension(
+          resolve(`artifacts/blahdns-firefox-${packageVersion}.xpi`),
+        );
+        const xpiPage = await browser.newPage();
+        await xpiPage
+          .mainFrame()
+          .browsingContext.navigate(
+            "moz-extension://7d8dd33f-49e7-479e-a85b-283a03d2b42b/ui/options.html",
+            "complete",
+          );
+        const installed = await xpiPage.evaluate(async () => ({
+          state: await browser.runtime.sendMessage({ type: "getState" }),
+          version: browser.runtime.getManifest().version,
+        }));
+        assert.equal(installed.version, packageVersion);
+        assert.equal(installed.state.error, null);
+        assert.equal(installed.state.capabilities.proxyPermission, false);
+        assert.equal(installed.state.defaultList.url, DEFAULT_ADBLOCK_URL);
+        assert(installed.state.report.domains > 100000);
+        await browser.uninstallExtension(id);
+        record.checks.push(
+          "unmodified unsigned XPI installs with proxy permission absent",
+        );
+      }
       await browser.installExtension(resolve(extension));
       record.checks.push("test extension installed");
       console.log(`${name}: extension installed`);
@@ -204,6 +232,195 @@ try {
       await options.waitForFunction(
         () => !document.querySelector("#save-button").disabled,
       );
+      assert.equal(state.settings.theme, "system");
+      assert.equal(state.defaultList.url, DEFAULT_ADBLOCK_URL);
+      assert.equal(state.defaultList.updatedAt, null);
+      assert.equal(state.report.unsupported.length, 0);
+      await options.click("#tab-data");
+      for (const theme of ["light", "dark"]) {
+        await options.select("#theme", theme);
+        assert.equal(
+          await options.evaluate(() => document.documentElement.dataset.theme),
+          theme,
+        );
+        await options.click("#save-button");
+        await options.waitForFunction(() =>
+          document
+            .querySelector("#save-state")
+            .textContent.includes("Settings saved."),
+        );
+        assert.equal((await send({ type: "getState" })).settings.theme, theme);
+        const contrast = await options.evaluate(() => {
+          const style = getComputedStyle(
+            document.querySelector("#save-button"),
+          );
+          const context = document.createElement("canvas").getContext("2d");
+          const luminance = (color) => {
+            context.fillStyle = color;
+            context.fillRect(0, 0, 1, 1);
+            const channels = [...context.getImageData(0, 0, 1, 1).data]
+              .slice(0, 3)
+              .map((value) => {
+                const v = value / 255;
+                return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+              });
+            return (
+              channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+            );
+          };
+          const foreground = luminance(style.color),
+            background = luminance(style.backgroundColor);
+          return (
+            (Math.max(foreground, background) + 0.05) /
+            (Math.min(foreground, background) + 0.05)
+          );
+        });
+        assert(
+          contrast >= 4.5,
+          `${theme} save-button text contrast: ${contrast}`,
+        );
+        (record.primaryButtonContrast ??= {})[theme] = contrast;
+        await options.screenshot({
+          path: `artifacts/screenshots/${name}-settings-${theme}.png`,
+          fullPage: true,
+        });
+        const popup = await browser.newPage();
+        const popupUrl = options
+          .url()
+          .replace(/options\.html.*$/, "popup.html");
+        if (name === "firefox")
+          await popup
+            .mainFrame()
+            .browsingContext.navigate(popupUrl, "complete");
+        else await popup.goto(popupUrl);
+        await popup.waitForFunction(
+          () => !document.querySelector("#global-toggle").disabled,
+        );
+        assert.equal(
+          await popup.evaluate(() => document.documentElement.dataset.theme),
+          theme,
+        );
+        await popup.screenshot({
+          path: `artifacts/screenshots/${name}-popup-${theme}.png`,
+        });
+        await popup.close();
+        if (name === "firefox")
+          await options.evaluate(async () => {
+            const tab = await browser.tabs.getCurrent();
+            await browser.tabs.update(tab.id, { active: true });
+          });
+        else await options.bringToFront();
+      }
+      await options.select("#theme", "system");
+      if (name !== "firefox") {
+        for (const scheme of ["light", "dark"]) {
+          await options.emulateMediaFeatures([
+            { name: "prefers-color-scheme", value: scheme },
+          ]);
+          await options.waitForFunction(
+            (expected) => document.documentElement.dataset.theme === expected,
+            {},
+            scheme,
+          );
+        }
+        await options.emulateMediaFeatures([]);
+      }
+      await options.waitForFunction(
+        () =>
+          document.documentElement.dataset.theme ===
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light"),
+      );
+      await options.click("#save-button");
+      await options.waitForFunction(() =>
+        document
+          .querySelector("#save-state")
+          .textContent.includes("Settings saved."),
+      );
+      record.checks.push(
+        "light/dark preview and save, popup theme, and native System preference",
+      );
+      await options.click("#tab-filtering");
+      await options.click("#update-default-list");
+      try {
+        await options.waitForFunction(
+          () =>
+            document
+              .querySelector("#save-state")
+              .textContent.includes("BlahDNS Lite updated.") ||
+            document.querySelector("#save-state").dataset.state === "error",
+          { timeout: 25000 },
+        );
+      } catch (error) {
+        const diagnostic = await options.evaluate(() => ({
+          hash: location.hash,
+          save: document.querySelector("#save-state").textContent,
+          status: document.querySelector("#status").textContent,
+          disabled: document.querySelector("#update-default-list").disabled,
+          source: document.querySelector("#default-list-status").textContent,
+          focused: document.hasFocus(),
+        }));
+        throw new Error(`${error.message}: ${JSON.stringify(diagnostic)}`);
+      }
+      const updateStatus = await options.$eval("#save-state", (element) => ({
+        text: element.textContent,
+        kind: element.dataset.state,
+      }));
+      assert.notEqual(updateStatus.kind, "error", updateStatus.text);
+      const updated = await send({ type: "getState" });
+      assert(Date.parse(updated.defaultList.updatedAt));
+      assert.equal(updated.report.unsupported.length, 0);
+      assert(updated.report.domains > 100000);
+      record.checks.push("BlahDNS Lite manual update and cached source status");
+      if (name !== "firefox") {
+        const target = await browser.waitForTarget(
+          (t) =>
+            t.type() === "service_worker" && t.url().endsWith("/background.js"),
+        );
+        const worker = await target.worker();
+        await worker.evaluate(() => {
+          const api = globalThis.browser ?? globalThis.chrome;
+          globalThis.__blahdnsOriginalSet = api.storage.local.set;
+          api.storage.local.set = async (value) => {
+            if (value.defaultList)
+              throw new Error("Fixture default list storage failure");
+            return globalThis.__blahdnsOriginalSet.call(
+              api.storage.local,
+              value,
+            );
+          };
+        });
+        let failed;
+        try {
+          failed = await send({ type: "updateDefaultList" });
+        } finally {
+          await worker.evaluate(() => {
+            (globalThis.browser ?? globalThis.chrome).storage.local.set =
+              globalThis.__blahdnsOriginalSet;
+            delete globalThis.__blahdnsOriginalSet;
+          });
+        }
+        assert.equal(failed.ok, false);
+        assert(failed.error.includes("Fixture default list storage failure"));
+        const retained = await send({ type: "getState" });
+        assert.deepEqual(retained.defaultList, updated.defaultList);
+        assert.deepEqual(retained.report, updated.report);
+        assert.equal(
+          await options.evaluate(
+            async () =>
+              (
+                await (
+                  globalThis.browser ?? globalThis.chrome
+                ).storage.local.get("defaultList")
+              ).defaultList.updatedAt,
+          ),
+          updated.defaultList.updatedAt,
+        );
+        record.checks.push(
+          "default list storage failure restores old rules and retains cached source",
+        );
+      }
       await options.$eval("#customRules", (element) => {
         element.value = "ui-tracker.example";
         element.dispatchEvent(new Event("input", { bubbles: true }));

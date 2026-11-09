@@ -1,6 +1,8 @@
 import { test, expect } from "bun:test";
 import {
   DEFAULTS,
+  DEFAULT_ADBLOCK_URL,
+  validateDefaultList,
   normalizePattern,
   matchesPattern,
   validateSettings,
@@ -61,6 +63,30 @@ test("settings import/export is bounded and strips unknown fields", () => {
       proxy: { ...input.proxy, host: "proxy.test; DIRECT" },
     }),
   ).toThrow();
+});
+test("appearance validates overrides and preserves version-1 imports", () => {
+  const old = defaults();
+  delete old.theme;
+  expect(validateSettings(old).theme).toBe("system");
+  for (const theme of ["system", "light", "dark"])
+    expect(validateSettings({ ...old, theme }).theme).toBe(theme);
+  for (const theme of [null, true, "auto", "<script>"])
+    expect(() => validateSettings({ ...old, theme })).toThrow();
+});
+test("default list cache is bounded and restricted to the fixed source", () => {
+  const cache = {
+    url: DEFAULT_ADBLOCK_URL,
+    text: "||ads.example^",
+    updatedAt: "2026-11-09T00:00:00Z",
+  };
+  expect(validateDefaultList(cache)).toEqual(cache);
+  expect(() =>
+    validateDefaultList({ ...cache, url: "https://other.example/list" }),
+  ).toThrow();
+  expect(() =>
+    validateDefaultList({ ...cache, text: "x".repeat(4_000_001) }),
+  ).toThrow();
+  expect(() => validateDefaultList({ ...cache, updatedAt: true })).toThrow();
 });
 test("site exceptions win over enabled domain trees", () => {
   const s = {

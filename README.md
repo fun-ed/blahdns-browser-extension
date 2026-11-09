@@ -1,6 +1,6 @@
 # BlahDNS Browser Extension
 
-> **0.1.0 preview:** 36 unit tests and real Chrome, Brave, and Firefox integration checks pass. This is a manual-install prerelease. See [validation evidence and limits](docs/evals/acceptance-output.md).
+> **0.2.0 preview:** System/Light/Dark UI, the BlahDNS Lite ABP default, and unsigned Firefox XPI. All 40 unit tests and real Chrome, Brave, and Firefox integration checks pass. This is a manual-install prerelease; see [validation evidence and limits](docs/evals/0.2.0/acceptance-output.md).
 
 A Manifest V3 privacy extension for Chrome, Brave, and Firefox. It blocks known ad and tracking domains, filters supported hosts and ABP rules, removes selected tracking parameters, and provides optional native privacy and proxy controls. Settings and counters stay in your browser.
 
@@ -12,8 +12,13 @@ A Manifest V3 privacy extension for Chrome, Brave, and Firefox. It blocks known 
 - Keeps settings, filter text, and optional aggregate counters in browser-local storage. No browsing history, telemetry, or cloud settings sync is part of the design.
 - Offers optional HTTP, HTTPS, SOCKS4, and SOCKS5 proxy routing by the **destination hostname**. A paused filtering exception does not bypass the proxy.
 - Offers opt-in Firefox native Resist Fingerprinting. It is a browser-wide policy that may normalize timezone and language and limit canvas, audio, and WebGL fingerprint surfaces; it can affect site compatibility. The extension does not inject JavaScript to fake those values.
+- Provides System, Light, and Dark appearances in settings and popup. Choose **Local data → Appearance**, then save. System follows the operating system; this setting does not change website fingerprint values.
 
 ![BlahDNS settings in Firefox](docs/images/settings-firefox.png)
+
+![Light appearance](docs/images/settings-light.png)
+
+![Dark appearance](docs/images/settings-dark.png)
 
 ## Browser limits
 
@@ -23,13 +28,15 @@ A Cloudflare challenge can fail for many reasons, including blocked challenge sc
 
 ## Install a prerelease
 
-The [GitHub prereleases](https://github.com/fun-ed/blahdns-browser-extension/releases) are for manual testing. A GitHub ZIP is not a signed store package. Firefox needs a signed XPI for permanent installation; this prerelease uses temporary add-on loading.
+The [GitHub prereleases](https://github.com/fun-ed/blahdns-browser-extension/releases) are for manual testing. Firefox ZIP and XPI contain the same bytes. The XPI is unsigned: ordinary Firefox requires Mozilla signing for permanent installation. This preview uses temporary add-on loading.
 
-1. Download and extract the Chromium or Firefox ZIP from a prerelease, or build locally using the commands below.
+1. Download the Chromium ZIP, Firefox ZIP, or unsigned Firefox XPI and verify it against the release's `SHA256SUMS`. Extract ZIPs; keep the XPI intact.
 2. In Chrome or Brave, open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose the extracted Chromium folder that contains `manifest.json`. A source build puts it in `dist/chromium`.
-3. In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `manifest.json` in the extracted Firefox folder. A source build puts it in `dist/firefox`. A temporary add-on is removed when Firefox restarts.
+3. In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select the unsigned `.xpi`, or `manifest.json` in the extracted Firefox ZIP. A source build also provides `dist/firefox`. A temporary add-on is removed when Firefox restarts.
 
 Store signing, review, and listing are separate from this GitHub prerelease. The manifests declare Chrome 121 and Firefox 140 as minimum versions. The current runtime matrix covers Chrome 157, Brave Beta on Chromium 157, and Firefox Developer Edition 160. Older declared versions have not been tested.
+
+CRX is not produced in this preview. Chrome and Brave use the unpacked Chromium ZIP. Browser-store distribution and managed-browser CRX installation require their own signing and policy workflow.
 
 ## DoH endpoints are manual settings
 
@@ -42,7 +49,9 @@ The extension's **Test DNS** action sends a fixed `example.com` A query to the c
 
 ## Lists and rule limits
 
-The current bundled snapshots are derived from [HaGeZi DNS Blocklists](https://github.com/hagezi/dns-blocklists) and [Content Farm Terminator](https://github.com/danny0838/content-farm-terminator). The current metadata records upstream revisions, licenses, input/output SHA-256 hashes, converted counts, and skipped farm entries in `extension/lists/sources.json`; full upstream files are under `data/upstream/`. Both baseline lists contain domains only, not cosmetic selectors. Refreshes are deliberate project changes. User HTTPS subscriptions are fetched only when the user requests an update. Lists are untrusted text, never executable code.
+The default ad source is [BlahDNS Lite ABP](https://oooo.b-cdn.net/blahdns/lite_adblocker.txt), bundled as an unchanged offline snapshot. The separate [Content Farm Terminator](https://github.com/danny0838/content-farm-terminator) source is converted to domain-only rules. Metadata in `extension/lists/sources.json` records source URLs, input/output SHA-256, retrieval time, accepted domain/network counts, and omitted farm entries; original inputs remain in `data/upstream/`. The mutable CDN snapshot is pinned by its recorded content hash.
+
+Choose **Filtering → Update list** to download a fresh BlahDNS Lite copy, with a 4 MB limit. A successful update replaces the default source and is cached locally; failed downloads, validation, or application keep previous rules. The ad-list switch controls both the bundled snapshot and its updated cache. No startup or scheduled download runs. Custom HTTPS subscriptions retain their separate 2 MB per-list and 4 MB combined custom-text limits, and update only on request. Lists are untrusted text, never executable code.
 
 The compiler currently enforces a 4,500-rule cross-browser budget and a 900-regex budget. Browser quotas and rule behavior can vary by version and by other installed extensions. A list rule outside the supported subset is diagnosed rather than treated as fully implemented.
 
@@ -65,7 +74,7 @@ mise exec -- bun run test:browser
 mise exec -- bun run benchmark
 ```
 
-The [validation record](docs/evals/acceptance-output.md) links the actual test, browser, DNS, package, security, and compiler outputs. The only direct development dependency is puppeteer-core for real browser tests. The extension has no runtime dependency. See [CONTRIBUTING.md](CONTRIBUTING.md), [AGENTS.md](AGENTS.md), and the repository-local [development](skills/extension-development/SKILL.md) and [release](skills/extension-release/SKILL.md) skills.
+The [0.2.0 validation record](docs/evals/0.2.0/acceptance-output.md) links current evidence. [0.1.0 evidence](docs/evals/acceptance-output.md) remains available. The only direct development dependency is puppeteer-core for real browser tests. The extension has no runtime dependency. See [CONTRIBUTING.md](CONTRIBUTING.md), [AGENTS.md](AGENTS.md), and the repository-local [development](skills/extension-development/SKILL.md) and [release](skills/extension-release/SKILL.md) skills.
 
 ## Project notes
 

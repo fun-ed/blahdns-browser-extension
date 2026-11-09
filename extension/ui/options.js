@@ -1,3 +1,5 @@
+import { setTheme } from "./theme.js";
+
 const api = globalThis.browser ?? globalThis.chrome;
 const byId = (id) => document.getElementById(id);
 const appState = {
@@ -246,6 +248,8 @@ function fillSettings(state) {
   }
   for (const id of ["mode", "customRules", "dnsRegion"])
     byId(id).value = settings[id];
+  byId("theme").value = settings.theme ?? "system";
+  setTheme(byId("theme").value);
   byId("sites").value = settings.sites.join("\n");
   byId("exceptions").value = settings.exceptions.join("\n");
   byId("subscription-urls").value = settings.subscriptions
@@ -276,6 +280,12 @@ function fillSettings(state) {
   }
 
   renderSubscriptionCache(settings.subscriptions);
+  const updatedAt = state.defaultList?.updatedAt;
+  const timestamp =
+    typeof updatedAt === "string" ? Date.parse(updatedAt) : Number.NaN;
+  byId("default-list-status").textContent = Number.isFinite(timestamp)
+    ? `Downloaded copy cached. Last updated ${new Date(timestamp).toLocaleString()}.`
+    : "Using the bundled snapshot.";
   renderStats(appState.stats, settings, appState.capabilities);
   renderAppliedStatus(state);
   renderReport(state.report);
@@ -286,6 +296,7 @@ function collectSettings() {
   return {
     ...current,
     enabled: byId("enabled").checked,
+    theme: byId("theme").value,
     mode: byId("mode").value,
     sites: lines(byId("sites").value),
     exceptions: lines(byId("exceptions").value),
@@ -431,6 +442,9 @@ for (const control of document.querySelectorAll("input, select, textarea")) {
   control.addEventListener("input", markDirty);
   control.addEventListener("change", markDirty);
 }
+byId("theme").addEventListener("change", (event) =>
+  setTheme(event.currentTarget.value),
+);
 byId("subscription-urls").addEventListener("input", refreshSubscriptionCache);
 window.addEventListener("hashchange", selectTab);
 selectTab();
@@ -475,6 +489,13 @@ byId("update-subscriptions").addEventListener("click", () =>
     await saveCandidate(collectSettings());
     const state = await send("updateSubscriptions");
     applyState(state, "Subscriptions updated.");
+  }),
+);
+byId("update-default-list").addEventListener("click", () =>
+  runAction(async () => {
+    await saveCandidate(collectSettings());
+    const state = await send("updateDefaultList");
+    applyState(state, "BlahDNS Lite updated.");
   }),
 );
 

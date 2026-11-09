@@ -65,3 +65,7 @@ Blocking can break sites. Pause filtering for the affected domain and reload. He
 ## Release gates
 
 Inspect the complete diff. Keep credential and browser-profile data out of Git. Retain evaluation inputs, outputs, browser versions, source hashes, known gaps, and screenshots. Create a public repository through `gh api`. Verify the remote owner. Commit with the configured identity helper. Publish tagged source, Chromium and Firefox ZIPs, and SHA256SUMS. Verify release downloads against local artifacts. Firefox stable requires a signed add-on for permanent installation. Store submission and signing require a separate store account workflow.
+
+## 0.2.0 additions
+
+The owner requested System/Light/Dark UI, the BlahDNS Lite ABP default at `https://oooo.b-cdn.net/blahdns/lite_adblocker.txt`, and Firefox XPI packaging. Follow [the scoped plan](docs/plans/003-appearance-default-list-xpi.md). Retain 0.1.0 release evidence and publish new artifacts under 0.2.0 after verification.
