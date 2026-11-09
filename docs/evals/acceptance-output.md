@@ -4,17 +4,19 @@ Date: 2026-11-09. Release candidate: 0.1.0. Runtime source is dependency-free Ja
 
 ## Local gates
 
-| Gate                             | Result                  | Evidence                                                                                                                                                                 |
-| -------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Bun syntax and repository policy | Passed                  | `mise exec -- bun lint`: 21 source files; checks syntax, local imports, browser boundaries, CSP markup, and package policy. It is not a full style or type linter.       |
-| Unit tests                       | Passed                  | `mise exec -- bun test`: 36 tests, 166 expectations, no failures.                                                                                                        |
-| Native formatting                | Passed after formatting | `mise exec -- bun fmt`; run `mise exec -- bun fmt --check` before commit.                                                                                                |
-| Chromium and Firefox build       | Passed                  | `mise exec -- bun run build`; see [build output](build-output.json).                                                                                                     |
-| Package and list hashes          | Passed                  | `mise exec -- bun run check`: ZIP integrity, source/output hashes, manifests, permissions, and licenses match.                                                           |
-| Real browser integration         | Passed                  | `mise exec -- bun run test:browser`; [structured output](browser-output.json).                                                                                           |
-| Compiler benchmark               | Passed                  | `mise exec -- bun run benchmark`; [input](benchmark-input.md) and [output](benchmark-output.json). This does not compare languages or measure browser request latency.   |
-| Live DNS diagnostics             | Passed                  | Fixed example.com A queries return NOERROR from both SG and DE; [output](dns-output.json). These were run under Bun and do not prove the browser resolver configuration. |
-| Security review                  | Findings corrected      | [Input](security-input.md) and [output](security-output.md). Source reinspection found no remaining high/medium issues in the two corrected paths.                       |
+| Gate                             | Result             | Evidence                                                                                                                                                                 |
+| -------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Bun syntax and repository policy | Passed             | `mise exec -- bun lint`: 21 source files; checks syntax, local imports, browser boundaries, CSP markup, and package policy. It is not a full style or type linter.       |
+| Unit tests                       | Passed             | `mise exec -- bun test`: 36 tests, 166 expectations, no failures.                                                                                                        |
+| Native formatting                | Passed             | `mise exec -- bun fmt --check`: all supported source and documentation files are formatted.                                                                              |
+| Chromium and Firefox build       | Passed             | `mise exec -- bun run build`; see [build output](build-output.json).                                                                                                     |
+| Package and list hashes          | Passed             | `mise exec -- bun run check`: ZIP integrity, source/output hashes, manifests, permissions, and licenses match.                                                           |
+| Real browser integration         | Passed             | `mise exec -- bun run test:browser`; [structured output](browser-output.json).                                                                                           |
+| Compiler benchmark               | Passed             | `mise exec -- bun run benchmark`; [input](benchmark-input.md) and [output](benchmark-output.json). This does not compare languages or measure browser request latency.   |
+| Live DNS diagnostics             | Passed             | Fixed example.com A queries return NOERROR from both SG and DE; [output](dns-output.json). These were run under Bun and do not prove the browser resolver configuration. |
+| Security review                  | Findings corrected | [Input](security-input.md) and [output](security-output.md). Source reinspection found no remaining high/medium issues in the two corrected paths.                       |
+| GitHub Actions                   | Passed             | Release source commit `c78dd63a3876621a1ecd7703c077b3fa9b871452`; [CI output](ci-output.json).                                                                           |
+| Reproducible packages            | Passed             | Two builds from the same source and pinned Bun produce identical ZIP bytes and SHA-256; [output](reproducible-output.json).                                              |
 
 ## Browser matrix
 
@@ -45,4 +47,4 @@ Earlier structured runs are retained as `browser-run-*.json`. They record the Ch
 
 ## Publication
 
-Local source and package gates are complete. GitHub publication and downloaded-asset read-back are recorded separately in `release-output.json` after they occur. A GitHub prerelease is not a browser-store signature or listing.
+The public [v0.1.0 prerelease](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.1.0) targets source commit `c78dd63a3876621a1ecd7703c077b3fa9b871452`. Its two ZIPs and SHA256SUMS were downloaded from GitHub and checked against local artifacts. [Release output](release-output.json) records the tag, assets, source commit, and matching hashes. Publication evidence is committed after the immutable source tag. A GitHub prerelease is not a browser-store signature or listing.

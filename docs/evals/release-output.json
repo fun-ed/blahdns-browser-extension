@@ -1,9 +1,54 @@
 {
+  "date": "2026-11-09T08:53:41.923Z",
+  "status": "published-and-verified",
   "repository": "fun-ed/blahdns-browser-extension",
-  "tag": "v0.1.0",
-  "status": "pending-publication",
-  "localGates": "passed",
-  "artifactEvidence": "build-output.json",
-  "browserEvidence": "browser-output.json",
-  "note": "Remote publication and downloaded-asset read-back will replace this record after they occur."
+  "sourceCommit": "c78dd63a3876621a1ecd7703c077b3fa9b871452",
+  "tagObject": {
+    "sha": "c78dd63a3876621a1ecd7703c077b3fa9b871452",
+    "type": "commit",
+    "url": "https://api.github.com/repos/fun-ed/blahdns-browser-extension/git/commits/c78dd63a3876621a1ecd7703c077b3fa9b871452"
+  },
+  "release": {
+    "assets": [
+      {
+        "browser_download_url": "https://github.com/fun-ed/blahdns-browser-extension/releases/download/v0.1.0/blahdns-chromium-0.1.0.zip",
+        "digest": "sha256:f7289fca7bf3247f0034ccc875106f97df551dc0f9bb4be9e2bdea3562cf2912",
+        "name": "blahdns-chromium-0.1.0.zip",
+        "size": 816054
+      },
+      {
+        "browser_download_url": "https://github.com/fun-ed/blahdns-browser-extension/releases/download/v0.1.0/blahdns-firefox-0.1.0.zip",
+        "digest": "sha256:6722dafa110d5cbceb68a35df745b68bb8b684a2b66e473a8847a9b232c1b77c",
+        "name": "blahdns-firefox-0.1.0.zip",
+        "size": 816117
+      },
+      {
+        "browser_download_url": "https://github.com/fun-ed/blahdns-browser-extension/releases/download/v0.1.0/SHA256SUMS",
+        "digest": "sha256:b38b8afde6d52839fbfd3c283a3f077219bbbf5657abb9f4090f99fa2630ec7b",
+        "name": "SHA256SUMS",
+        "size": 185
+      }
+    ],
+    "draft": false,
+    "html_url": "https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.1.0",
+    "id": 438903176,
+    "prerelease": true,
+    "published_at": "2026-11-09T08:52:14Z",
+    "tag_name": "v0.1.0",
+    "target_commitish": "c78dd63a3876621a1ecd7703c077b3fa9b871452"
+  },
+  "downloadVerification": [
+    {
+      "name": "blahdns-chromium-0.1.0.zip",
+      "bytes": 816054,
+      "sha256": "f7289fca7bf3247f0034ccc875106f97df551dc0f9bb4be9e2bdea3562cf2912"
+    },
+    {
+      "name": "blahdns-firefox-0.1.0.zip",
+      "bytes": 816117,
+      "sha256": "6722dafa110d5cbceb68a35df745b68bb8b684a2b66e473a8847a9b232c1b77c"
+    }
+  ],
+  "checksumFileMatches": true,
+  "ciRun": "https://github.com/fun-ed/blahdns-browser-extension/actions/runs/42588788720"
 }
