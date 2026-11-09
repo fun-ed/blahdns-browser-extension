@@ -2,7 +2,10 @@ import { test, expect } from "bun:test";
 import { DEFAULTS, DEFAULT_ADBLOCK_URL } from "../extension/core/settings.js";
 
 let instance = 0;
-async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
+async function backgroundFixture(
+  storedSettings = structuredClone(DEFAULTS),
+  { chromium = false, permission = false } = {},
+) {
   const previousBrowser = globalThis.browser,
     previousFetch = globalThis.fetch;
   let messageHandler,
@@ -16,6 +19,9 @@ async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
       addListener: (fn) => listeners.add(fn),
       removeListener: (fn) => listeners.delete(fn),
       hasListener: (fn) => listeners.has(fn),
+      get size() {
+        return listeners.size;
+      },
     };
   };
   const setting = (initial) => {
@@ -42,7 +48,9 @@ async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
     runtime: {
       id: "fixture",
       getURL: (path) => `moz-extension://fixture/${path}`,
-      getBrowserInfo: async () => ({ name: "Firefox" }),
+      ...(chromium
+        ? {}
+        : { getBrowserInfo: async () => ({ name: "Firefox" }) }),
       onMessage: {
         addListener: (fn) => {
           messageHandler = fn;
@@ -51,7 +59,7 @@ async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
       onInstalled: event(),
     },
     permissions: {
-      contains: async () => false,
+      contains: async () => permission,
       onAdded: event(),
       onRemoved: event(),
     },
@@ -59,7 +67,9 @@ async function backgroundFixture(storedSettings = structuredClone(DEFAULTS)) {
       network: { webRTCIPHandlingPolicy: setting("default") },
       websites: { resistFingerprinting: setting(false) },
     },
-    proxy: { onRequest: event() },
+    proxy: chromium
+      ? { settings: setting({ mode: "system" }) }
+      : { onRequest: event() },
     scripting: {
       insertCSS: async (options) => css.push(options.css),
       removeCSS: async () => {},
@@ -337,6 +347,94 @@ test("getState reads native status without writes or listener changes", async ()
     expect(failedRead.proxyStatus).toBeDefined();
     expect(mutations).toEqual([]);
   } finally {
+    f.restore();
+  }
+});
+
+test.each(["webrtc", "fingerprinting"])(
+  "failed %s release cannot persist native or master-off settings",
+  async (control) => {
+    const f = await backgroundFixture();
+    try {
+      const initial = await f.send({ type: "getState" });
+      const active = {
+        ...initial.settings,
+        privacy: {
+          ...initial.settings.privacy,
+          [control]: control === "webrtc" ? "public" : "resist",
+        },
+      };
+      expect(
+        (await f.send({ type: "saveSettings", settings: active })).ok,
+      ).toBe(true);
+      const before = structuredClone(f.storage.settings),
+        rules = f.rules();
+      const setting =
+        control === "webrtc"
+          ? f.api.privacy.network.webRTCIPHandlingPolicy
+          : f.api.privacy.websites.resistFingerprinting;
+      setting.clear = async () => {};
+      for (const candidate of [
+        { ...before, privacy: { ...before.privacy, [control]: "native" } },
+        { ...before, enabled: false },
+      ]) {
+        const result = await f.send({
+          type: "saveSettings",
+          settings: candidate,
+        });
+        expect(result.ok).toBe(false);
+        expect(f.storage.settings).toEqual(before);
+        expect(f.rules()).toEqual(rules);
+      }
+    } finally {
+      f.restore();
+    }
+  },
+);
+
+test("failed Chromium proxy release cannot persist proxy-off or master-off settings", async () => {
+  const f = await backgroundFixture(undefined, { chromium: true });
+  try {
+    const initial = await f.send({ type: "getState" });
+    f.api.permissions.contains = async () => true;
+    const active = {
+      ...initial.settings,
+      proxy: { ...initial.settings.proxy, enabled: true },
+    };
+    expect((await f.send({ type: "saveSettings", settings: active })).ok).toBe(
+      true,
+    );
+    const before = structuredClone(f.storage.settings),
+      rules = f.rules();
+    f.api.proxy.settings.clear = async () => {};
+    for (const candidate of [
+      { ...before, proxy: { ...before.proxy, enabled: false } },
+      { ...before, enabled: false },
+    ]) {
+      const result = await f.send({
+        type: "saveSettings",
+        settings: candidate,
+      });
+      expect(result.ok).toBe(false);
+      expect(f.storage.settings).toEqual(before);
+      expect(f.rules()).toEqual(rules);
+    }
+  } finally {
+    f.restore();
+  }
+});
+
+test("Firefox proxy listener registers before asynchronous permission resolution", async () => {
+  let releasePermission;
+  const permission = new Promise((resolve) => {
+    releasePermission = resolve;
+  });
+  const f = await backgroundFixture(undefined, { permission });
+  try {
+    expect(f.api.proxy.onRequest.size).toBe(1);
+  } finally {
+    releasePermission(true);
+    await f.send({ type: "getState" });
     f.restore();
   }
 });

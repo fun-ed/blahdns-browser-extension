@@ -1,0 +1,8 @@
+{
+  "scope": "Deterministic CSS lexical boundary cases, actual Chromium CSS parser via style.textContent; not full grammar coverage.",
+  "version": "Chrome/157.0.8103.39",
+  "candidates": 80,
+  "accepted": 74,
+  "rejected": 6,
+  "failures": []
+}

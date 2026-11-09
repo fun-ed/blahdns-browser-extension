@@ -140,7 +140,7 @@ function renderAppliedStatus(state) {
     proxyText =
       "Proxy permission is required. Save while proxy is enabled to request it.";
   } else if (proxy?.supported === false) {
-    proxyText = "This browser does not support the proxy settings API.";
+    proxyText = proxy.message ?? "The proxy settings API is unavailable.";
   } else if (proxy?.enabled && proxy.applied) {
     proxyText = "Proxy settings are applied.";
   } else if (proxy?.enabled) {

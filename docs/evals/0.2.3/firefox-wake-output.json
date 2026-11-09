@@ -1,0 +1,9 @@
+{
+  "version": "0.2.3",
+  "status": "passed",
+  "scope": "Forced extension-process crash recovery in a disposable profile; natural idle is not covered.",
+  "browser": "firefox/160.0",
+  "crashNavigationError": "Protocol error (browsingContext.navigate): unknown error Error: NS_ERROR_NOT_IMPLEMENTED NavigationError@chrome://remote/content/shared/RemoteError.sys.mjs:34:5\n#checkLoadingState@chrome://remote/content/shared/Navigate.sys.mjs:348:30\nonStateChange@chrome://remote/content/shared/Navigate.sys.mjs:431:28\n",
+  "backgroundBeforeRequest": false,
+  "backgroundAfterRequest": true
+}

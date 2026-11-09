@@ -1,6 +1,6 @@
 # BlahDNS Browser Extension
 
-> **0.2.2 preview:** validates cosmetic selector structure and permanently tests enabled-proxy status read-back. All 56 unit tests and 21 integration checks in each of Chrome, Brave and Firefox pass. See [validation evidence and limits](docs/evals/0.2.2/acceptance-output.md).
+> **0.2.3 preview:** verifies native settings after apply/release, fixes first-install proxy permission guidance, and restores Firefox proxy wake-up after an extension-process crash. All 63 unit tests pass; Chrome and Brave each pass 22 integration checks, Firefox passes 21 plus a separate crash/wake check. See [validation evidence and limits](docs/evals/0.2.3/acceptance-output.md).
 
 A Manifest V3 privacy extension for Chrome, Brave, and Firefox. It blocks known ad and tracking domains, filters supported hosts and ABP rules, removes selected tracking parameters, and provides optional native privacy and proxy controls. Settings and counters stay in your browser.
 

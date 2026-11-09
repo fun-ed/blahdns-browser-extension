@@ -27,3 +27,7 @@ Record concise facts, decisions, and limitations in `docs/evals/research-output.
 ## Status
 
 Research notes are recorded; local implementation and release verification remain pending.
+
+## 0.2.3 native lifecycle follow-up
+
+Verify Firefox persistent proxy-event registration timing, optional-permission namespace availability and an isolated crash/restart procedure against Mozilla documentation and source. Distinguish natural idle from forced crash recovery. Record controlled runtime evidence separately from the platform contract.

@@ -456,6 +456,32 @@ test("proxy disable clears our hidden contribution without changing another exte
   expect(result.applied).toBe(true);
   expect(clears).toBe(1);
 });
+test.each([true, false])(
+  "proxy apply rejects contradictory read-back when enabled=%s",
+  async (enabled) => {
+    const api = {
+      permissions: { contains: async () => true },
+      proxy: {
+        settings: {
+          get: async () => ({
+            levelOfControl: "controlled_by_this_extension",
+            value: {
+              mode: "pac_script",
+              pacScript: {
+                mandatory: true,
+                data: 'function FindProxyForURL(){return "DIRECT";}',
+              },
+            },
+          }),
+          set: async () => {},
+          clear: async () => {},
+        },
+      },
+    };
+    const result = await applyProxy(api, proxySettings({ enabled }));
+    expect(result.applied).toBe(false);
+  },
+);
 
 test("native privacy values release only settings controlled by this extension", async () => {
   const webrtc = browserSetting(
@@ -736,4 +762,14 @@ test("DNS diagnostics returns DNS error codes without claiming browser DNS contr
 
 test("DNS diagnostics rejects unsupported regions", async () => {
   await expect(testDns("toString")).rejects.toThrow();
+});
+
+test("missing optional proxy access reports permission state rather than unsupported browser", async () => {
+  const api = { permissions: { contains: async () => false } };
+  for (const operation of [readProxy, applyProxy]) {
+    const result = await operation(api, proxySettings({ enabled: false }));
+    expect(result.applied).toBe(false);
+    expect(result.message).toContain("permission");
+    expect(result.message).not.toContain("This browser does not support");
+  }
 });

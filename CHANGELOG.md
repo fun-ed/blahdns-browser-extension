@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3 - 2026-11-09
+
+- Verify Chromium proxy PAC contents after set and control priority after clear. Reject native privacy/proxy release failures and roll back settings and rules instead of persisting a false disabled state.
+- Describe an unavailable optional proxy API before permission is granted as a permission state. Verify the first-install guidance in unmodified Chrome and Brave builds.
+- Register Firefox proxy listeners synchronously before asynchronous permission queries. An isolated crash/wake regression reproduces the 0.2.2 failure and verifies the first selected request wakes and uses the proxy in 0.2.3. Natural idle shutdown is not covered.
+- Verify 63 unit tests and 282 expectations; Chrome and Brave each pass 22 integration checks, Firefox passes 21 plus the separate crash/wake check. No new runtime dependency, permission or settings schema.
+
 ## 0.2.2 - 2026-11-09
 
 - Reject unclosed quotes, brackets and parentheses, crossed closers, unfinished escapes and CSS newline controls in cosmetic selectors. Preserve supported balanced quoted and escaped tokens. Keep validation in the background parser.

@@ -179,8 +179,28 @@ try {
         record.checks.push(
           "unmodified unsigned XPI installs with proxy permission absent",
         );
+      } else {
+        const id = await browser.installExtension(resolve("dist/chromium"));
+        const fresh = await browser.newPage();
+        await fresh.goto(`chrome-extension://${id}/ui/options.html`);
+        await fresh.waitForFunction(() =>
+          document
+            .getElementById("proxy-status")
+            .textContent.includes("permission"),
+        );
+        const state = await fresh.evaluate(() =>
+          chrome.runtime.sendMessage({ type: "getState" }),
+        );
+        assert.equal(state.error, null);
+        assert.equal(state.capabilities.proxyPermission, false);
+        assert(!state.proxyStatus.message.includes("does not support"));
+        await fresh.close();
+        await browser.uninstallExtension(id);
+        record.checks.push(
+          "unmodified first install reports optional proxy permission accurately",
+        );
       }
-      await browser.installExtension(resolve(extension));
+      const installedId = await browser.installExtension(resolve(extension));
       record.checks.push("test extension installed");
       console.log(`${name}: extension installed`);
       let options;
@@ -195,7 +215,9 @@ try {
           );
       } else {
         const optionsTarget = await browser.waitForTarget(
-          (t) => t.url().includes("/ui/options.html"),
+          (t) =>
+            t.url().startsWith(`chrome-extension://${installedId}/`) &&
+            t.url().includes("/ui/options.html"),
           { timeout: 30000 },
         );
         options = await optionsTarget.page();
@@ -862,3 +884,10 @@ try {
   );
 }
 if (results.some((result) => result.status !== "passed")) process.exitCode = 1;
+if (selected.includes("firefox") && !process.exitCode) {
+  const wake = Bun.spawn(
+    ["mise", "exec", "--", "bun", "tools/firefox-wake-test.js"],
+    { stdout: "inherit", stderr: "inherit" },
+  );
+  if (await wake.exited) process.exitCode = 1;
+}

@@ -77,3 +77,7 @@ The owner authorized fixes for CSS comment poisoning and mutating native status 
 ## 0.2.2 selector structure
 
 Continue the authorized fixes and publication with [the selector structure plan](docs/plans/005-selector-structure.md). Keep validation in the background parser and retain permanent enabled HTTP/SOCKS5 status checks.
+
+## Native postconditions and Firefox wake follow-up
+
+Continue the authorized patch work with [the native lifecycle plan](docs/plans/006-native-postconditions.md). Verify native operations after apply/release, preserve transactional rollback, clarify optional permission status and register Firefox wake listeners synchronously. Reproduce the crash/wake failure in an isolated profile and retain versioned evidence.

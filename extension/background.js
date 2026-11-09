@@ -74,24 +74,26 @@ async function apply(settings, result) {
   await installRules(result);
   const privacy = await applyPrivacy(api, settings.privacy, settings.enabled);
   if (
-    settings.enabled &&
-    settings.privacy.webrtc !== "native" &&
-    !privacy.controls.webrtc.applied
+    !privacy.controls.webrtc.applied &&
+    (privacy.controls.webrtc.supported ||
+      (settings.enabled && settings.privacy.webrtc !== "native"))
   )
-    throw new Error("The WebRTC policy could not be applied.");
+    throw new Error("The WebRTC policy could not be applied or released.");
   if (
-    settings.enabled &&
-    settings.privacy.fingerprinting === "resist" &&
-    !privacy.controls.fingerprinting.applied
+    !privacy.controls.fingerprinting.applied &&
+    (privacy.controls.fingerprinting.supported ||
+      (settings.enabled && settings.privacy.fingerprinting === "resist"))
   )
-    throw new Error("Native fingerprint protection could not be applied.");
+    throw new Error(
+      "Native fingerprint protection could not be applied or released.",
+    );
   await registerProxyListener();
   const proxy = await applyProxy(api, {
     ...settings.proxy,
     enabled: settings.enabled && settings.proxy.enabled,
   });
   if (
-    proxy.enabled &&
+    (proxy.enabled || proxy.supported) &&
     !(
       proxy.applied ||
       (firefox &&
@@ -382,7 +384,12 @@ async function registerProxyListener() {
     api.proxy.onRequest.removeListener(firefoxProxyListener);
   }
 }
-void registerProxyListener().catch(() => {});
+// Event-page wake listeners must be registered before asynchronous initialization.
+if (firefox && api.proxy?.onRequest) {
+  api.proxy.onRequest.addListener(firefoxProxyListener, {
+    urls: ["<all_urls>"],
+  });
+}
 api.permissions.onAdded.addListener(() => {
   void registerProxyListener().catch(() => {});
 });

@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "scope": "Initial staged text checked for private-key delimiters and GitHub token shapes; not a complete secret detector. This audit record is generated after that scan.",
+  "textFiles": 28,
+  "runtimeDependencies": 0
+}

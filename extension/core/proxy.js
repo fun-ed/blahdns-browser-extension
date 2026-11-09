@@ -210,9 +210,26 @@ async function manageProxy(api, value, write) {
 
   const settings = api?.proxy?.settings;
   if (!settings?.get || (write && (!settings.set || !settings.clear))) {
+    let message = "This browser does not support the proxy settings API.";
+    if (!proxy.enabled && api.permissions?.contains) {
+      try {
+        const granted = await callApi(
+          api,
+          api.permissions,
+          api.permissions.contains,
+          [{ permissions: ["proxy"] }],
+          firefox,
+        );
+        if (!granted)
+          message =
+            "Optional proxy permission has not been granted. Enable proxy routing and save to request access.";
+      } catch {
+        message = "Could not verify optional proxy permission.";
+      }
+    }
     return status(proxy, {
       supported: false,
-      message: "This browser does not support the proxy settings API.",
+      message,
     });
   }
 
@@ -250,7 +267,7 @@ async function manageProxy(api, value, write) {
         after?.levelOfControl === "controlled_by_this_extension" &&
         after?.value?.mode === "pac_script" &&
         after?.value?.pacScript?.mandatory === true &&
-        (write || after?.value?.pacScript?.data === createPac(proxy));
+        after?.value?.pacScript?.data === createPac(proxy);
       return status(proxy, {
         applied,
         method: "mandatory-pac",
@@ -261,13 +278,20 @@ async function manageProxy(api, value, write) {
       });
     }
 
-    const applied = write || level !== "controlled_by_this_extension";
     // clear removes our contribution even when another extension takes precedence.
     if (write)
       await callApi(api, settings, settings.clear, [{ scope: "regular" }]);
+    const after = write
+      ? await callApi(api, settings, settings.get, [{}])
+      : before;
+    const applied = [
+      "controllable_by_this_extension",
+      "controlled_by_other_extensions",
+      "not_controllable",
+    ].includes(after?.levelOfControl);
     return status(proxy, {
       applied,
-      levelOfControl: level,
+      levelOfControl: after?.levelOfControl,
       message: applied
         ? "Extension proxy setting released. Browser or system proxy settings may still apply."
         : "Could not confirm that the extension proxy setting is released.",
