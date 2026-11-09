@@ -1,6 +1,6 @@
 # BlahDNS Browser Extension
 
-> **0.2.0 preview:** System/Light/Dark UI, the BlahDNS Lite ABP default, and unsigned Firefox XPI. All 40 unit tests and real Chrome, Brave, and Firefox integration checks pass. This is a manual-install prerelease; see [validation evidence and limits](docs/evals/0.2.0/acceptance-output.md).
+> **0.2.1 preview:** fixes cosmetic CSS comment poisoning and makes native privacy/proxy status queries read-only. All 46 unit tests and 19 integration checks in each of Chrome, Brave and Firefox pass. This is a manual-install prerelease; see [validation evidence and limits](docs/evals/0.2.1/acceptance-output.md).
 
 A Manifest V3 privacy extension for Chrome, Brave, and Firefox. It blocks known ad and tracking domains, filters supported hosts and ABP rules, removes selected tracking parameters, and provides optional native privacy and proxy controls. Settings and counters stay in your browser.
 
@@ -74,7 +74,7 @@ mise exec -- bun run test:browser
 mise exec -- bun run benchmark
 ```
 
-The [0.2.0 validation record](docs/evals/0.2.0/acceptance-output.md) links current evidence. [0.1.0 evidence](docs/evals/acceptance-output.md) remains available. The only direct development dependency is puppeteer-core for real browser tests. The extension has no runtime dependency. See [CONTRIBUTING.md](CONTRIBUTING.md), [AGENTS.md](AGENTS.md), and the repository-local [development](skills/extension-development/SKILL.md) and [release](skills/extension-release/SKILL.md) skills.
+The [0.2.1 validation record](docs/evals/0.2.1/acceptance-output.md) links current evidence. Earlier [0.2.0](docs/evals/0.2.0/acceptance-output.md) and [0.1.0](docs/evals/acceptance-output.md) records remain available. The only direct development dependency is puppeteer-core for real browser tests. The extension has no runtime dependency. See [CONTRIBUTING.md](CONTRIBUTING.md), [AGENTS.md](AGENTS.md), and the repository-local [development](skills/extension-development/SKILL.md) and [release](skills/extension-release/SKILL.md) skills.
 
 ## Project notes
 

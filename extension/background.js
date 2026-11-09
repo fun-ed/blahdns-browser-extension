@@ -8,8 +8,8 @@ import {
   normalizeHost,
 } from "./core/settings.js";
 import { compileRules, selectorsFor } from "./core/rules.js";
-import { applyPrivacy } from "./core/privacy.js";
-import { applyProxy, routeProxy } from "./core/proxy.js";
+import { applyPrivacy, readPrivacy } from "./core/privacy.js";
+import { applyProxy, readProxy, routeProxy } from "./core/proxy.js";
 import { testDns } from "./core/dns.js";
 
 const api = globalThis.browser ?? globalThis.chrome;
@@ -135,8 +135,7 @@ async function state() {
   const proxyPermission = await api.permissions.contains({
     permissions: ["proxy"],
   });
-  await registerProxyListener();
-  const proxyStatus = await applyProxy(api, {
+  const proxyStatus = await readProxy(api, {
     ...current.proxy,
     enabled: current.enabled && current.proxy.enabled,
   }).catch((error) => ({ applied: false, error: error.message }));
@@ -163,7 +162,7 @@ async function state() {
       rfp: !!api.privacy?.websites?.resistFingerprinting,
       dnrFeedback: !!api.declarativeNetRequest.onRuleMatchedDebug,
     },
-    privacyStatus: await applyPrivacy(
+    privacyStatus: await readPrivacy(
       api,
       current.privacy,
       current.enabled,

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 - 2026-11-09
+
+- Reject CSS comment delimiters in cosmetic selectors, so a malformed rule cannot comment out later valid generated rules. Report rejected rules in diagnostics.
+- Separate readPrivacy/readProxy status queries from native writes. getState does not set/clear browser controls or change proxy listeners after initialization. Report actual mismatches and per-section read errors; retain explicit apply and rollback paths.
+- Validate Chromium proxy read-back against the requested PAC contents and control priority.
+- Verify 46 unit tests and 232 expectations; Chrome, Brave and Firefox each pass 19 integration checks, including the CSS regression and Chromium native-write spies. ZIP/XPI repeat-build hashes match.
+
 ## 0.2.0 - 2026-11-09
 
 - Add System, Light, and Dark appearances for settings and popup. Preserve version-1 settings imports; missing appearance defaults to System. Website fingerprint values are unchanged.

@@ -299,3 +299,44 @@ test("invalid or oversized default downloads cannot replace active rules", async
     f.restore();
   }
 });
+
+test("getState reads native status without writes or listener changes", async () => {
+  const f = await backgroundFixture();
+  try {
+    await f.send({ type: "getState" });
+    const mutations = [];
+    const refuse = (name) => async () => {
+      mutations.push(name);
+      throw new Error(`Unexpected mutation: ${name}`);
+    };
+    for (const setting of [
+      f.api.privacy.network.webRTCIPHandlingPolicy,
+      f.api.privacy.websites.resistFingerprinting,
+    ]) {
+      setting.set = refuse("privacy.set");
+      setting.clear = refuse("privacy.clear");
+    }
+    f.api.proxy.onRequest.addListener = refuse("proxy.addListener");
+    f.api.proxy.onRequest.removeListener = refuse("proxy.removeListener");
+    f.api.permissions.contains = async () => true;
+    f.api.storage.local.set = refuse("storage.set");
+    f.api.declarativeNetRequest.updateDynamicRules = refuse("DNR.update");
+    for (let i = 0; i < 2; i++) {
+      const state = await f.send({ type: "getState" });
+      expect(state.ok).toBe(true);
+      expect(state.privacyStatus.error).toBeUndefined();
+      expect(state.privacyStatus.controls.webrtc.applied).toBe(true);
+    }
+    expect(mutations).toEqual([]);
+    f.api.privacy.network.webRTCIPHandlingPolicy.get = async () => {
+      throw new Error("Fixture read failure");
+    };
+    const failedRead = await f.send({ type: "getState" });
+    expect(failedRead.ok).toBe(true);
+    expect(failedRead.privacyStatus.error).toBeTruthy();
+    expect(failedRead.proxyStatus).toBeDefined();
+    expect(mutations).toEqual([]);
+  } finally {
+    f.restore();
+  }
+});

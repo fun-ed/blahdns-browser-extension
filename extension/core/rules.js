@@ -55,7 +55,7 @@ export function parseList(text, source = "custom") {
     if (cosmetic) {
       const [, scope, exception, selector] = cosmetic;
       if (
-        /[{}@]|url\s*\(|\+js\(|:style\(|:remove\(|:matches-|:has-text\(|:xpath\(/i.test(
+        /[{}@]|\/\*|\*\/|url\s*\(|\+js\(|:style\(|:remove\(|:matches-|:has-text\(|:xpath\(/i.test(
           selector,
         ) ||
         selector.length > 500

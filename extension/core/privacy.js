@@ -100,7 +100,7 @@ async function applySetting(
   };
 }
 
-export async function applyPrivacy(api, value, enabled) {
+function validatePrivacy(value, enabled) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("privacy settings must be an object.");
   if (typeof enabled !== "boolean")
@@ -113,34 +113,54 @@ export async function applyPrivacy(api, value, enabled) {
     throw new Error("Unsupported language setting.");
   if (typeof value.userAgent !== "string")
     throw new Error("userAgent must be a string.");
+}
 
-  const firefox = await isFirefox(api);
-  if (enabled && value.fingerprinting === "resist" && !firefox) {
-    throw new Error("Chromium does not provide native resist fingerprinting.");
+async function readSetting(
+  api,
+  setting,
+  requested,
+  activeValue,
+  enabled,
+  firefox,
+) {
+  if (!setting?.get) {
+    return {
+      requested,
+      supported: false,
+      applied: false,
+      message: "This browser does not provide this native privacy control.",
+    };
   }
 
-  const controls = {};
-  try {
-    controls.webrtc = await applySetting(
-      api,
-      api?.privacy?.network?.webRTCIPHandlingPolicy,
-      value.webrtc,
-      WEBRTC_VALUES[value.webrtc],
-      enabled,
-      firefox,
-    );
-    controls.fingerprinting = await applySetting(
-      api,
-      api?.privacy?.websites?.resistFingerprinting,
-      value.fingerprinting,
-      value.fingerprinting === "resist" ? true : undefined,
-      enabled,
-      firefox,
-    );
-  } catch {
-    throw new Error("Could not read or apply native browser privacy settings.");
-  }
+  const current = await callApi(api, setting, setting.get, [{}], firefox);
+  const shouldSet = enabled && activeValue !== undefined;
+  const level = current?.levelOfControl;
+  const matches = shouldSet
+    ? current?.value === activeValue &&
+      (!level || level === "controlled_by_this_extension")
+    : level !== "controlled_by_this_extension";
+  return {
+    requested,
+    supported: true,
+    applied: matches,
+    value: current?.value,
+    levelOfControl: level,
+    message: matches
+      ? shouldSet
+        ? "Native setting applied."
+        : "Extension setting released."
+      : shouldSet &&
+          level &&
+          ![
+            "controlled_by_this_extension",
+            "controllable_by_this_extension",
+          ].includes(level)
+        ? "This setting is controlled by the browser or another extension."
+        : "Could not confirm the native setting.",
+  };
+}
 
+function privacyStatus(value, enabled, firefox, controls) {
   const limitations = [
     "Language overrides affect only the HTTP Accept-Language header. This module does not change JavaScript language or other fingerprint signals.",
   ];
@@ -175,4 +195,50 @@ export async function applyPrivacy(api, value, enabled) {
     },
     limitations,
   };
+}
+
+async function managePrivacy(api, value, enabled, write) {
+  validatePrivacy(value, enabled);
+
+  const firefox = await isFirefox(api);
+  if (enabled && value.fingerprinting === "resist" && !firefox) {
+    throw new Error("Chromium does not provide native resist fingerprinting.");
+  }
+
+  const operation = write ? applySetting : readSetting;
+  const controls = {};
+  try {
+    controls.webrtc = await operation(
+      api,
+      api?.privacy?.network?.webRTCIPHandlingPolicy,
+      value.webrtc,
+      WEBRTC_VALUES[value.webrtc],
+      enabled,
+      firefox,
+    );
+    controls.fingerprinting = await operation(
+      api,
+      api?.privacy?.websites?.resistFingerprinting,
+      value.fingerprinting,
+      value.fingerprinting === "resist" ? true : undefined,
+      enabled,
+      firefox,
+    );
+  } catch {
+    throw new Error(
+      write
+        ? "Could not read or apply native browser privacy settings."
+        : "Could not read native browser privacy settings.",
+    );
+  }
+
+  return privacyStatus(value, enabled, firefox, controls);
+}
+
+export function applyPrivacy(api, value, enabled) {
+  return managePrivacy(api, value, enabled, true);
+}
+
+export function readPrivacy(api, value, enabled) {
+  return managePrivacy(api, value, enabled, false);
 }

@@ -420,6 +420,51 @@ try {
         record.checks.push(
           "default list storage failure restores old rules and retains cached source",
         );
+        await worker.evaluate(() => {
+          const api = globalThis.browser ?? globalThis.chrome;
+          globalThis.__blahdnsNativeWrites = [];
+          globalThis.__blahdnsNativeSettings = [
+            api.privacy?.network?.webRTCIPHandlingPolicy,
+            api.privacy?.websites?.resistFingerprinting,
+            api.proxy?.settings,
+          ]
+            .filter(Boolean)
+            .map((setting) => ({
+              setting,
+              set: setting.set,
+              clear: setting.clear,
+            }));
+          for (const { setting } of globalThis.__blahdnsNativeSettings)
+            for (const method of ["set", "clear"])
+              setting[method] = async () => {
+                globalThis.__blahdnsNativeWrites.push(method);
+                throw new Error("Unexpected native write during getState");
+              };
+        });
+        try {
+          const read = await send({ type: "getState" });
+          assert(read.ok, read.error);
+          assert.equal(read.privacyStatus.error, undefined);
+          assert.equal(read.proxyStatus.error, undefined);
+          assert.deepEqual(
+            await worker.evaluate(() => globalThis.__blahdnsNativeWrites),
+            [],
+          );
+        } finally {
+          await worker.evaluate(() => {
+            for (const {
+              setting,
+              set,
+              clear,
+            } of globalThis.__blahdnsNativeSettings)
+              Object.assign(setting, { set, clear });
+            delete globalThis.__blahdnsNativeSettings;
+            delete globalThis.__blahdnsNativeWrites;
+          });
+        }
+        record.checks.push(
+          "getState reads native privacy and proxy status without writes",
+        );
       }
       await options.$eval("#customRules", (element) => {
         element.value = "ui-tracker.example";
@@ -506,7 +551,7 @@ try {
         adblock: false,
         contentFarms: false,
         statsEnabled: true,
-        customRules: `|http://127.0.0.1:${port}/blocked$xmlhttprequest\n|ws://127.0.0.1:${port}/socket$websocket\nlocalhost##.advert`,
+        customRules: `|http://127.0.0.1:${port}/blocked$xmlhttprequest\n|ws://127.0.0.1:${port}/socket$websocket\nlocalhost##.x/*\nlocalhost##.advert`,
       };
       const save = async (next) => {
         const result = await send({ type: "saveSettings", settings: next });
@@ -514,7 +559,11 @@ try {
         settings = structuredClone(result.settings);
         return result;
       };
-      await save(settings);
+      const fixtureState = await save(settings);
+      assert.equal(fixtureState.report.unsupported.length, 1);
+      record.checks.push(
+        "unsafe CSS comment rejected while valid cosmetic rule remains active",
+      );
       console.log(`${name}: fixture rules applied`);
       const page = await browser.newPage();
       page.setDefaultTimeout(10000);

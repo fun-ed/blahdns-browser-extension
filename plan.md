@@ -69,3 +69,7 @@ Inspect the complete diff. Keep credential and browser-profile data out of Git. 
 ## 0.2.0 additions
 
 The owner requested System/Light/Dark UI, the BlahDNS Lite ABP default at `https://oooo.b-cdn.net/blahdns/lite_adblocker.txt`, and Firefox XPI packaging. Follow [the scoped plan](docs/plans/003-appearance-default-list-xpi.md). Retain 0.1.0 release evidence and publish new artifacts under 0.2.0 after verification.
+
+## 0.2.1 corrections
+
+The owner authorized fixes for CSS comment poisoning and mutating native status queries, followed by publication. Follow [the patch plan](docs/plans/004-css-read-only-status.md); retain earlier release evidence and tags.

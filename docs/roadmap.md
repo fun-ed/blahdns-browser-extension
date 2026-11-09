@@ -1,5 +1,16 @@
 # Roadmap
 
+## 0.2.1 prerelease gates
+
+| Area                 | Evidence                                                                                                              | Status  |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- | ------- |
+| CSS safety           | Comment delimiters rejected; valid later rules hide their target under strict CSP in all three browsers               | Passed  |
+| Native status        | Repeated queries perform no native writes or listener changes; real Chromium write spies and native Firefox read-back | Passed  |
+| Quality and packages | 46 unit tests, 232 expectations; Chrome/Brave/Firefox 19 checks each; archive/source checks and repeat ZIP/XPI hashes | Passed  |
+| GitHub publication   | Exact-source CI and downloaded-asset verification                                                                     | Pending |
+
+See [0.2.1 acceptance output](evals/0.2.1/acceptance-output.md). Earlier release tags, assets and evidence remain available below.
+
 ## 0.2.0 prerelease gates
 
 | Area                     | Evidence                                                                                                                                                         | Status                               |

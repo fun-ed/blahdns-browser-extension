@@ -53,7 +53,7 @@ Responses are `{ok:true,...}` or `{ok:false,error}`. `getState` and `saveSetting
 
 | Message               | Input                      | Output or effect                                                                                                                     |
 | --------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `getState`            | None                       | Current validated settings and status                                                                                                |
+| `getState`            | None                       | Read current validated settings and actual native status; never set/clear settings or change proxy listeners                         |
 | `saveSettings`        | `settings`                 | Validate, compile, apply, and persist; restore the previous state on failure                                                         |
 | `previewRules`        | `settings`                 | `{ok,report}` without changing active rules                                                                                          |
 | `testDns`             | `region`                   | `{ok,result}` for a fixed example.com A query                                                                                        |
@@ -65,6 +65,8 @@ Responses are `{ok:true,...}` or `{ok:false,error}`. `getState` and `saveSetting
 | `recordStats`         | `kind`, bounded `amount`   | Content-script aggregate events only; no browsing history                                                                            |
 
 `report` has `rules`, `domains`, `cosmetic`, `unsupported`, `ignored`, and `accepted`. Each unsupported item has `line`, `reason`, and `source`. `capabilities` has `firefox`, `proxyPermission`, `rfp`, and `dnrFeedback`. Statistics have `cleanedLinks`, `cosmeticPages`, and `blockedRequests`. A blocked count is available only from real DNR debug events during development. It is not an estimate of production blocking.
+
+`readPrivacy` and `readProxy` query native values and control priority without repairing mismatches. Chromium proxy status compares the actual PAC with the requested PAC. Apply operations remain in startup, settings saves and rollback; proxy-listener lifecycle remains in startup, apply and permission events. Native read errors are reported per section so the settings UI stays reachable. Cosmetic selectors containing CSS comment delimiters are unsupported and diagnosed before CSS generation.
 
 ## Module ownership boundaries
 

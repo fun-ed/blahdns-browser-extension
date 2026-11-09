@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes the 0.2.0 implementation. See [validation evidence](evals/0.2.0/acceptance-output.md) for the tested versions and remaining limits.
+This document describes the 0.2.1 implementation. See [validation evidence](evals/0.2.1/acceptance-output.md) for the tested versions and remaining limits.
 
 ## Runtime flow
 
@@ -9,6 +9,8 @@ This document describes the 0.2.0 implementation. See [validation evidence](eval
 3. `extension/core/rules.js` converts supported hosts, ABP network, and CSS cosmetic syntax. `extension/content.js` cleans links. The background uses `scripting.insertCSS` for sender-scoped cosmetic rules so page CSP cannot block them.
 4. `extension/core/privacy.js` uses browser-native controls where available. `extension/core/proxy.js` configures browser proxy routing. `extension/core/dns.js` performs an explicit DoH endpoint diagnostic.
 5. `extension/ui/theme.js` resolves the saved System/Light/Dark preference for settings and popup. It changes extension CSS only; native media preference changes update System mode live.
+
+Opening settings or popup calls read-only `readPrivacy` and `readProxy` status queries. They inspect actual native values and control priority without setting, clearing or registering listeners. Saves/startup/rollback retain the explicit apply path. A mismatched setting is reported instead of silently repaired during a read.
 
 The extension runtime is JavaScript and browser DNR. It does not use a Rust/WASM matcher for each request. `adblock-rust` is a possible offline/build-time comparison or conversion tool, not a runtime dependency. Keep any Node-based evaluation build-time only; the repository's development and verification commands use mise-managed Bun.
 
@@ -39,6 +41,8 @@ example.com##.advert
 Firefox matches WebSocket handshakes as HTTP(S) URLs. The compiler adds a WebSocket-only HTTP(S) alias for literal `ws://` and `wss://` URL filters. It preserves the original action and does not apply that alias to ordinary HTTP traffic. Scheme-specific regex rules follow each browser's DNR behavior.
 
 Comments and empty lines are counted as ignored. Unsupported modifiers, malformed hostnames, scriptlets, procedural or extended CSS, unsafe selectors, and unsupported regex features are reported with source and line diagnostics. No unsupported syntax should be described as working. The compiler currently rejects more than 4,500 total rules or 900 regex rules; browser quotas and behavior can also vary. See [Chrome DNR](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest) and the [uBlock Origin Lite FAQ](<https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)>) for platform context.
+
+CSS comment delimiters are rejected in cosmetic selectors. A malformed rule such as `##.x/*` must not consume later valid generated rules; diagnostics retain its source and line. These checks are a bounded supported subset, not a complete CSS grammar implementation.
 
 The `ads` snapshot is the original BlahDNS Lite ABP file from `https://oooo.b-cdn.net/blahdns/lite_adblocker.txt`; it retains supported network syntax instead of being reduced to domains. The `farms` snapshot is a domain-only projection of Content Farm Terminator. Source URLs, revisions or content hashes, license notes, input/output SHA-256 and parser counts are recorded in `extension/lists/sources.json`; full inputs remain under `data/upstream/`.
 

@@ -1,9 +1,10 @@
 import { expect, test } from "bun:test";
-import { applyPrivacy } from "../extension/core/privacy.js";
+import { applyPrivacy, readPrivacy } from "../extension/core/privacy.js";
 import { ENDPOINTS, testDns } from "../extension/core/dns.js";
 import {
   applyProxy,
   createPac,
+  readProxy,
   routeProxy,
   validateProxy,
 } from "../extension/core/proxy.js";
@@ -117,6 +118,22 @@ test("proxy validation accepts the four supported transport types and rejects ba
   expect(() =>
     validateProxy(proxySettings({ host: "proxy.example:8080" })),
   ).toThrow();
+});
+
+test("read-only status applies the same input validation", async () => {
+  await expect(
+    readPrivacy(
+      {},
+      {
+        webrtc: "invalid",
+        fingerprinting: "native",
+        language: "native",
+        userAgent: "",
+      },
+      true,
+    ),
+  ).rejects.toThrow();
+  await expect(readProxy({}, proxySettings({ port: 0 }))).rejects.toThrow();
 });
 
 test("proxy scopes use normalized domain-tree patterns and respect sibling boundaries", () => {
@@ -323,6 +340,100 @@ test("Firefox proxy status delegates active routing to the background handler", 
   expect(result.method).toBe("firefox-onRequest");
 });
 
+test("Chromium proxy status reads compare PAC and never mutate settings", async () => {
+  const desired = proxySettings({ mode: "sites", sites: ["example.com"] });
+  let state = {
+    value: {
+      mode: "pac_script",
+      pacScript: {
+        data: createPac(proxySettings({ mode: "sites", sites: ["other.com"] })),
+        mandatory: true,
+      },
+    },
+    levelOfControl: "controlled_by_this_extension",
+  };
+  let sets = 0;
+  let clears = 0;
+  const api = {
+    permissions: {
+      async contains() {
+        return true;
+      },
+    },
+    proxy: {
+      settings: {
+        async get() {
+          return state;
+        },
+        async set() {
+          sets++;
+        },
+        async clear() {
+          clears++;
+        },
+      },
+    },
+  };
+
+  const mismatch = await readProxy(api, desired);
+  expect(mismatch).toMatchObject({
+    applied: false,
+    method: "mandatory-pac",
+    levelOfControl: "controlled_by_this_extension",
+  });
+
+  state = {
+    value: {
+      mode: "pac_script",
+      pacScript: { data: createPac(desired), mandatory: true },
+    },
+    levelOfControl: "controlled_by_this_extension",
+  };
+  const matching = await readProxy(api, desired);
+  expect(matching.applied).toBe(true);
+
+  const stillControlled = await readProxy(
+    api,
+    proxySettings({ enabled: false }),
+  );
+  expect(stillControlled).toMatchObject({
+    applied: false,
+    levelOfControl: "controlled_by_this_extension",
+  });
+  expect(sets).toBe(0);
+  expect(clears).toBe(0);
+});
+
+test("Firefox proxy status does not change listeners", async () => {
+  let additions = 0;
+  let removals = 0;
+  const api = {
+    permissions: {
+      async contains() {
+        return true;
+      },
+    },
+    proxy: {
+      onRequest: {
+        addListener() {
+          additions++;
+        },
+        removeListener() {
+          removals++;
+        },
+      },
+    },
+  };
+  const result = await readProxy(api, proxySettings());
+  expect(result).toMatchObject({
+    applied: false,
+    handlerRequired: true,
+    method: "firefox-onRequest",
+  });
+  expect(additions).toBe(0);
+  expect(removals).toBe(0);
+});
+
 test("proxy disable clears our hidden contribution without changing another extension", async () => {
   let clears = 0;
   const api = {
@@ -420,6 +531,78 @@ test("WebRTC privacy choices map to the native browser values", async () => {
     );
     expect(setting.getState().value).toBe(expected);
   }
+});
+
+test("privacy status reads native controls without setting or clearing them", async () => {
+  let webrtcState = {
+    value: "default",
+    levelOfControl: "controlled_by_this_extension",
+  };
+  const fingerprintingState = {
+    value: true,
+    levelOfControl: "controlled_by_this_extension",
+  };
+  let sets = 0;
+  let clears = 0;
+  const setting = (getState) => ({
+    async get() {
+      return getState();
+    },
+    async set() {
+      sets++;
+    },
+    async clear() {
+      clears++;
+    },
+  });
+  const api = {
+    runtime: {
+      async getBrowserInfo() {
+        return { name: "Firefox" };
+      },
+    },
+    privacy: {
+      network: {
+        webRTCIPHandlingPolicy: setting(() => webrtcState),
+      },
+      websites: {
+        resistFingerprinting: setting(() => fingerprintingState),
+      },
+    },
+  };
+  const value = {
+    webrtc: "public",
+    fingerprinting: "native",
+    language: "native",
+    userAgent: "",
+  };
+
+  const mismatch = await readPrivacy(api, value, true);
+  expect(mismatch.controls.webrtc).toMatchObject({
+    requested: "public",
+    applied: false,
+    value: "default",
+    levelOfControl: "controlled_by_this_extension",
+  });
+  expect(mismatch.controls.fingerprinting).toMatchObject({
+    requested: "native",
+    applied: false,
+    value: true,
+    levelOfControl: "controlled_by_this_extension",
+  });
+
+  webrtcState = {
+    value: "default_public_interface_only",
+    levelOfControl: "controlled_by_this_extension",
+  };
+  const matching = await readPrivacy(api, value, true);
+  expect(matching.controls.webrtc).toMatchObject({
+    applied: true,
+    value: "default_public_interface_only",
+    levelOfControl: "controlled_by_this_extension",
+  });
+  expect(sets).toBe(0);
+  expect(clears).toBe(0);
 });
 
 test("Firefox resist fingerprinting uses and reads back the native control", async () => {

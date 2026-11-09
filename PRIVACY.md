@@ -1,6 +1,6 @@
 # Privacy policy
 
-Policy for the 0.2.0 preview. See [validation evidence](docs/evals/0.2.0/acceptance-output.md) for tested behavior and limits.
+Policy for the 0.2.1 preview. See [validation evidence](docs/evals/0.2.1/acceptance-output.md) for tested behavior and limits.
 
 ## What stays in your browser
 
@@ -26,6 +26,8 @@ Statistics are off by default and can be enabled by the user. Counters are store
 The extension does not inject JavaScript to fake canvas, audio, WebGL, language, timezone, or other browser fingerprint values. A custom User-Agent and the `en-US` language option affect HTTP request headers only; page JavaScript, Client Hints, TLS, and workers are not synchronized.
 
 Firefox's native Resist Fingerprinting option is opt-in and browser-wide. Depending on Firefox version, it may affect timezone, language, canvas, audio, and WebGL behavior; sites may work differently. The extension does not implement these changes with JavaScript. Supported native settings are applied only when available and controlled by the extension; disabling the setting releases controls owned by the extension. Chrome and Brave retain their own browser privacy controls. Use [Brave Shields](https://support.brave.com/hc/en-us/articles/360022806212-How-do-I-use-Shields-while-browsing) for Brave-native settings.
+
+After background initialization, status queries from settings or popup inspect native values without setting, clearing or repairing them. Initialization, explicit saves and rollback retain the apply path. A native mismatch is reported so the user can choose to save and reapply settings.
 
 ## Your choices
 

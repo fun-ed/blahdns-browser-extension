@@ -165,7 +165,7 @@ async function isFirefox(api) {
   }
 }
 
-export async function applyProxy(api, value) {
+async function manageProxy(api, value, write) {
   const proxy = validateProxy(value);
   const firefox = await isFirefox(api);
 
@@ -209,7 +209,7 @@ export async function applyProxy(api, value) {
   }
 
   const settings = api?.proxy?.settings;
-  if (!settings?.get || !settings?.set || !settings?.clear) {
+  if (!settings?.get || (write && (!settings.set || !settings.clear))) {
     return status(proxy, {
       supported: false,
       message: "This browser does not support the proxy settings API.",
@@ -233,20 +233,24 @@ export async function applyProxy(api, value) {
           message: "The browser or another extension controls proxy settings.",
         });
       }
-      await callApi(api, settings, settings.set, [
-        {
-          value: {
-            mode: "pac_script",
-            pacScript: { data: createPac(proxy), mandatory: true },
+      if (write)
+        await callApi(api, settings, settings.set, [
+          {
+            value: {
+              mode: "pac_script",
+              pacScript: { data: createPac(proxy), mandatory: true },
+            },
+            scope: "regular",
           },
-          scope: "regular",
-        },
-      ]);
-      const after = await callApi(api, settings, settings.get, [{}]);
+        ]);
+      const after = write
+        ? await callApi(api, settings, settings.get, [{}])
+        : before;
       const applied =
         after?.levelOfControl === "controlled_by_this_extension" &&
         after?.value?.mode === "pac_script" &&
-        after?.value?.pacScript?.mandatory === true;
+        after?.value?.pacScript?.mandatory === true &&
+        (write || after?.value?.pacScript?.data === createPac(proxy));
       return status(proxy, {
         applied,
         method: "mandatory-pac",
@@ -257,18 +261,31 @@ export async function applyProxy(api, value) {
       });
     }
 
+    const applied = write || level !== "controlled_by_this_extension";
     // clear removes our contribution even when another extension takes precedence.
-    await callApi(api, settings, settings.clear, [{ scope: "regular" }]);
+    if (write)
+      await callApi(api, settings, settings.clear, [{ scope: "regular" }]);
     return status(proxy, {
-      applied: true,
+      applied,
       levelOfControl: level,
-      message:
-        "Extension proxy setting released. Browser or system proxy settings may still apply.",
+      message: applied
+        ? "Extension proxy setting released. Browser or system proxy settings may still apply."
+        : "Could not confirm that the extension proxy setting is released.",
     });
   } catch {
     return status(proxy, {
       applied: false,
-      message: "Could not apply proxy settings. Check browser permission.",
+      message: write
+        ? "Could not apply proxy settings. Check browser permission."
+        : "Could not read proxy settings. Check browser permission.",
     });
   }
+}
+
+export function applyProxy(api, value) {
+  return manageProxy(api, value, true);
+}
+
+export function readProxy(api, value) {
+  return manageProxy(api, value, false);
 }

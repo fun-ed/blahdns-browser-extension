@@ -143,6 +143,11 @@ test("cosmetic exceptions apply to the right domains", () => {
   expect(selectorsFor(p.cosmetics, "other.test")).toEqual([".advert"]);
   expect(p.unsupported).toHaveLength(2);
 });
+test("CSS comment delimiters cannot swallow later cosmetic rules", () => {
+  const parsed = parseList("##.x/*\n##.x*/\n##.advert");
+  expect(parsed.unsupported).toHaveLength(2);
+  expect(selectorsFor(parsed.cosmetics, "example.test")).toEqual([".advert"]);
+});
 test("DNR batches large host lists and covers WebSocket handshakes", () => {
   const text = Array.from({ length: 1200 }, (_, n) => `ads${n}.example`).join(
     "\n",
