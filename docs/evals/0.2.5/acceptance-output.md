@@ -2,16 +2,16 @@
 
 This release packages the manually recorded browser DoH status. It is a user-confirmed local record, not browser DNS configuration or automatic detection.
 
-| Gate                            | Result  | Evidence                                                                                                                            |
-| ------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Dependencies, format and lint   | Passed  | Frozen install unchanged; Bun formatting and repository checks for 23 source files                                                  |
-| Unit tests                      | Passed  | 64 tests, 293 expectations; legacy imports default to unknown, valid records round-trip, invalid values are rejected                |
-| Browser matrix                  | Passed  | [Results](browser-output.json): Chrome 157 and Brave Beta Chromium 157 each pass 23 checks; Firefox Developer Edition 160 passes 22 |
-| Manual DoH record               | Passed  | Actual UI save, reopening, import/export and unsaved-change checks for unknown, enabled and disabled                                |
-| Firefox wake                    | Passed  | [Current test](firefox-wake-output.json): a selected request wakes the stopped background and receives the local proxy response     |
-| Packages                        | Passed  | [Build](build-output.json), [repeat builds](reproducible-output.json), archive/source checks and byte-identical Firefox ZIP/XPI     |
-| Compiler benchmark              | Passed  | [Results](benchmark-output.json): one warm-up and 20 compiler-only iterations                                                       |
-| Exact-source CI and publication | Pending | Verify after pushing the source commit                                                                                              |
+| Gate                            | Result | Evidence                                                                                                                                                                                                                                                                     |
+| ------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dependencies, format and lint   | Passed | Frozen install unchanged; Bun formatting and repository checks for 23 source files                                                                                                                                                                                           |
+| Unit tests                      | Passed | 64 tests, 293 expectations; legacy imports default to unknown, valid records round-trip, invalid values are rejected                                                                                                                                                         |
+| Browser matrix                  | Passed | [Results](browser-output.json): Chrome 157 and Brave Beta Chromium 157 each pass 23 checks; Firefox Developer Edition 160 passes 22                                                                                                                                          |
+| Manual DoH record               | Passed | Actual UI save, reopening, import/export and unsaved-change checks for unknown, enabled and disabled                                                                                                                                                                         |
+| Firefox wake                    | Passed | [Current test](firefox-wake-output.json): a selected request wakes the stopped background and receives the local proxy response                                                                                                                                              |
+| Packages                        | Passed | [Build](build-output.json), [repeat builds](reproducible-output.json), archive/source checks and byte-identical Firefox ZIP/XPI                                                                                                                                              |
+| Compiler benchmark              | Passed | [Results](benchmark-output.json): one warm-up and 20 compiler-only iterations                                                                                                                                                                                                |
+| Exact-source CI and publication | Passed | [CI](ci-output.json) and [release](release-output.json): source/tag `adc44338f947b5c8bba538590a7fc1ea0aa63065` matches; four downloaded assets match local bytes, SHA-256 and GitHub digests; downloaded ZIP/XPI contain the manual DoH feature; previous tags are unchanged |
 
 The retained [0.2.2/0.2.3 comparison](firefox-wake-filter-comparison.json) documents the earlier wake fix. See the [test method](../../research-firefox-proxy-event-page.md) for isolation details.
 

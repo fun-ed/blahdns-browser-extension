@@ -1,0 +1,14 @@
+{
+  "id": 42663889470,
+  "source": "adc44338f947b5c8bba538590a7fc1ea0aa63065",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/fun-ed/blahdns-browser-extension/actions/runs/42663889470",
+  "jobs": [
+    {
+      "name": "verify",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "GitHub Ubuntu Chrome checks; local matrix separately covers Brave and Firefox."
+}

@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "url": "https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.5",
+  "source": "adc44338f947b5c8bba538590a7fc1ea0aa63065",
+  "tag": "v0.2.5",
+  "tagCommit": "adc44338f947b5c8bba538590a7fc1ea0aa63065",
+  "prerelease": true,
+  "assets": [
+    {
+      "name": "blahdns-chromium-0.2.5.zip",
+      "bytes": 1033392,
+      "sha256": "d72aea904ec3ef58428efc6bdd430fe9ca7121abed9bf482373fb21ace2b5fdf",
+      "githubDigest": "sha256:d72aea904ec3ef58428efc6bdd430fe9ca7121abed9bf482373fb21ace2b5fdf",
+      "status": "passed"
+    },
+    {
+      "name": "blahdns-firefox-0.2.5.zip",
+      "bytes": 1033454,
+      "sha256": "2899d6273562c5feb712f3018c39c527879eb82f001826740fa55d1642f23424",
+      "githubDigest": "sha256:2899d6273562c5feb712f3018c39c527879eb82f001826740fa55d1642f23424",
+      "status": "passed"
+    },
+    {
+      "name": "blahdns-firefox-0.2.5.xpi",
+      "bytes": 1033454,
+      "sha256": "2899d6273562c5feb712f3018c39c527879eb82f001826740fa55d1642f23424",
+      "githubDigest": "sha256:2899d6273562c5feb712f3018c39c527879eb82f001826740fa55d1642f23424",
+      "status": "passed"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 277,
+      "sha256": "9417c1287b293d85083f89c412fcdd8703931d5c3bafa428cc9d3190c9a6ba8c",
+      "githubDigest": "sha256:9417c1287b293d85083f89c412fcdd8703931d5c3bafa428cc9d3190c9a6ba8c",
+      "status": "passed"
+    }
+  ],
+  "previousTagsUnchanged": true,
+  "manualDohFeatureInDownloadedPackages": true,
+  "verification": "All downloaded assets match local bytes, SHA-256, checksum text and GitHub digests. Downloaded Chromium ZIP and Firefox XPI manifest/UI/settings contain version 0.2.5 and the manual DoH feature."
+}
