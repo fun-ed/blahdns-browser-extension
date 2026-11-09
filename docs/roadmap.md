@@ -1,6 +1,6 @@
 # Roadmap
 
-Current release: [0.2.4 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.4). See [verified behavior and limits](evals/0.2.4/acceptance-output.md).
+Current release: [0.2.5 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.5). See [verified behavior and limits](evals/0.2.5/acceptance-output.md).
 
 Before extending compatibility claims:
 

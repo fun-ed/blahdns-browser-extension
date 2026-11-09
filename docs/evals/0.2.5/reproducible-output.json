@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "version": "0.2.5",
+  "outputs": [
+    {
+      "target": "chromium",
+      "path": "artifacts/blahdns-chromium-0.2.5.zip",
+      "bytes": 1033392,
+      "sha256": "d72aea904ec3ef58428efc6bdd430fe9ca7121abed9bf482373fb21ace2b5fdf"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.2.5.zip",
+      "bytes": 1033454,
+      "sha256": "2899d6273562c5feb712f3018c39c527879eb82f001826740fa55d1642f23424"
+    },
+    {
+      "target": "firefox",
+      "path": "artifacts/blahdns-firefox-0.2.5.xpi",
+      "bytes": 1033454,
+      "sha256": "2899d6273562c5feb712f3018c39c527879eb82f001826740fa55d1642f23424"
+    }
+  ],
+  "comparison": "Byte lengths and SHA-256 match across two local builds; Firefox ZIP/XPI match."
+}

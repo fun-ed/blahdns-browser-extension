@@ -2,7 +2,7 @@
 
 A Manifest V3 privacy extension for Chrome, Brave and Firefox. It blocks ads, trackers and content farms, removes known tracking parameters, and provides optional native privacy and proxy controls. Settings and optional aggregate counters stay in your browser. No telemetry or browsing history is collected.
 
-Current release: [0.2.4 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.4). See [verification and limits](docs/evals/0.2.4/acceptance-output.md).
+Current release: [0.2.5 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.5). See [verification and limits](docs/evals/0.2.5/acceptance-output.md).
 
 ## Features
 

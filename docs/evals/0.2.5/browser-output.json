@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-09T16:22:02.579Z",
+  "date": "2026-11-09T17:20:08.764Z",
   "note": "Isolated profiles. Optional proxy permission pre-granted in a test-only copy; native optional permission prompt not covered. HTTP/2, HTTP/3, QUIC transport and CAPTCHA outcomes are not tested.",
   "results": [
     {
@@ -12,6 +12,7 @@
         "BlahDNS Lite manual update and cached source status",
         "default list storage failure restores old rules and retains cached source",
         "getState reads native privacy and proxy status without writes",
+        "manual DoH unknown/on/off saves only on request and survives reopening",
         "settings UI save, file import, and serialized export payload",
         "unsafe CSS token structures rejected while valid cosmetic rule remains active",
         "cosmetic filtering and link cleaning",
@@ -45,6 +46,7 @@
         "BlahDNS Lite manual update and cached source status",
         "default list storage failure restores old rules and retains cached source",
         "getState reads native privacy and proxy status without writes",
+        "manual DoH unknown/on/off saves only on request and survives reopening",
         "settings UI save, file import, and serialized export payload",
         "unsafe CSS token structures rejected while valid cosmetic rule remains active",
         "cosmetic filtering and link cleaning",
@@ -76,6 +78,7 @@
         "default lists installed",
         "light/dark preview and save, popup theme, and native System preference",
         "BlahDNS Lite manual update and cached source status",
+        "manual DoH unknown/on/off saves only on request and survives reopening",
         "settings UI save, file import, and serialized export payload",
         "unsafe CSS token structures rejected while valid cosmetic rule remains active",
         "cosmetic filtering and link cleaning",

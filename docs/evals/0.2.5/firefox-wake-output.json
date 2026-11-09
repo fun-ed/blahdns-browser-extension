@@ -1,5 +1,5 @@
 {
-  "version": "0.2.4",
+  "version": "0.2.5",
   "status": "passed",
   "scope": "Forced extension-process crash recovery in a disposable profile; natural idle is not covered.",
   "browser": "firefox/160.0",

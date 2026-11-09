@@ -1,6 +1,6 @@
 # Privacy policy
 
-Policy for the 0.2.4 preview. See [validation evidence](docs/evals/0.2.4/acceptance-output.md) for tested behavior and limits.
+Policy for the 0.2.5 preview. See [validation evidence](docs/evals/0.2.5/acceptance-output.md) for tested behavior and limits.
 
 ## What stays in your browser
 

@@ -13,4 +13,4 @@ The runtime compiles supported filter text into browser DNR rules. JavaScript ha
 
 Exact Firefox fingerprint-surface coverage and transport behavior depend on browser versions and require runtime checks. Community posts, store descriptions and upstream features do not establish this extension's capabilities.
 
-Current [verification](evals/0.2.4/acceptance-output.md) and [compiler benchmark](evals/0.2.4/benchmark-output.json) record what was tested. List sources, licenses and content hashes are recorded in `extension/lists/sources.json`.
+Current [verification](evals/0.2.5/acceptance-output.md) and [compiler benchmark](evals/0.2.5/benchmark-output.json) record what was tested. List sources, licenses and content hashes are recorded in `extension/lists/sources.json`.

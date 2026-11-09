@@ -1,6 +1,6 @@
 # Architecture
 
-See [current verification](evals/0.2.4/acceptance-output.md) for tested browser versions and limits.
+See [current verification](evals/0.2.5/acceptance-output.md) for tested browser versions and limits.
 
 ## Runtime flow
 
