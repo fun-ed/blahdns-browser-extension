@@ -148,6 +148,36 @@ test("CSS comment delimiters cannot swallow later cosmetic rules", () => {
   expect(parsed.unsupported).toHaveLength(2);
   expect(selectorsFor(parsed.cosmetics, "example.test")).toEqual([".advert"]);
 });
+test.each([
+  `.x[a="`,
+  `.x[a='`,
+  ".x(",
+  ".x[",
+  ".x\\",
+  ".x([)]",
+  ".x]",
+  ".x)",
+  `.x[a="\f"]`,
+])("unbalanced cosmetic selector %s cannot swallow later rules", (selector) => {
+  const parsed = parseList(`##${selector}\n##.advert`);
+  expect(parsed.unsupported).toHaveLength(1);
+  expect(selectorsFor(parsed.cosmetics, "example.test")).toEqual([".advert"]);
+});
+test("balanced quoted and escaped selector tokens remain supported", () => {
+  const selectors = [
+    `.x[data-v="("]`,
+    `.x:not([data-v="]"])`,
+    ".x\\[",
+    `.x[data-v="a\\\"b"]`,
+    ".x\\\\",
+    ".x\\28",
+  ];
+  const parsed = parseList(
+    selectors.map((selector) => `##${selector}`).join("\n"),
+  );
+  expect(parsed.unsupported).toHaveLength(0);
+  expect(parsed.cosmetics.map((rule) => rule.selector)).toEqual(selectors);
+});
 test("DNR batches large host lists and covers WebSocket handshakes", () => {
   const text = Array.from({ length: 1200 }, (_, n) => `ads${n}.example`).join(
     "\n",

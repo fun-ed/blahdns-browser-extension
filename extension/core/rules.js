@@ -32,6 +32,29 @@ const TYPE_MAP = {
 };
 const root = (p) => p.replace(/^\*\./, "");
 
+function hasBalancedSelectorTokens(selector) {
+  const closers = [];
+  let quote = "";
+  for (let i = 0; i < selector.length; i++) {
+    const char = selector[i];
+    if (/[\r\n\f]/.test(char)) return false;
+    if (char === "\\") {
+      if (++i >= selector.length || /[\r\n\f]/.test(selector[i])) return false;
+      continue;
+    }
+    if (quote) {
+      if (char === quote) quote = "";
+      continue;
+    }
+    if (char === '"' || char === "'") quote = char;
+    else if (char === "[") closers.push("]");
+    else if (char === "(") closers.push(")");
+    else if ((char === "]" || char === ")") && closers.pop() !== char)
+      return false;
+  }
+  return !quote && closers.length === 0;
+}
+
 export function parseList(text, source = "custom") {
   const domains = new Set(),
     allows = new Set(),
@@ -58,7 +81,8 @@ export function parseList(text, source = "custom") {
         /[{}@]|\/\*|\*\/|url\s*\(|\+js\(|:style\(|:remove\(|:matches-|:has-text\(|:xpath\(/i.test(
           selector,
         ) ||
-        selector.length > 500
+        selector.length > 500 ||
+        !hasBalancedSelectorTokens(selector)
       ) {
         reject(line, "Procedural or injected cosmetic rules are not supported");
         continue;

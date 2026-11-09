@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-09T14:35:39.203Z",
+  "runtime": "Bun 1.4.4",
+  "platform": "darwin/arm64",
+  "inputBytes": 3112573,
+  "domains": 126170,
+  "dnrRules": 921,
+  "dnrJsonBytes": 3243605,
+  "iterations": 20,
+  "medianMs": 102.80016700000033,
+  "p95Ms": 106.693209,
+  "rssBytes": 113066752,
+  "scope": "Compiler only. One warm-up run. No browser/network or Rust/WASM comparison. RSS covers the full Bun process.",
+  "decision": "Use native browser DNR for request matching. Keep JavaScript for bounded compilation. Bun owns development tooling. Reconsider Rust/WASM only after a measured runtime bottleneck. These results do not compare language performance."
+}

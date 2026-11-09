@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2 - 2026-11-09
+
+- Reject unclosed quotes, brackets and parentheses, crossed closers, unfinished escapes and CSS newline controls in cosmetic selectors. Preserve supported balanced quoted and escaped tokens. Keep validation in the background parser.
+- Add permanent HTTP/SOCKS5 enabled-proxy getState assertions to the browser matrix without relaxing exact PAC comparison.
+- Verify 56 unit tests, 252 expectations and 21 integration checks in each browser, including actual CSS hiding and enabled HTTP/SOCKS5 proxy status. ZIP/XPI repeat-build hashes match.
+
 ## 0.2.1 - 2026-11-09
 
 - Reject CSS comment delimiters in cosmetic selectors, so a malformed rule cannot comment out later valid generated rules. Report rejected rules in diagnostics.

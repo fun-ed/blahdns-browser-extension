@@ -1,6 +1,6 @@
 # Architecture
 
-This document describes the 0.2.1 implementation. See [validation evidence](evals/0.2.1/acceptance-output.md) for the tested versions and remaining limits.
+This document describes the 0.2.2 implementation. See [validation evidence](evals/0.2.2/acceptance-output.md) for the tested versions and remaining limits.
 
 ## Runtime flow
 
@@ -42,7 +42,7 @@ Firefox matches WebSocket handshakes as HTTP(S) URLs. The compiler adds a WebSoc
 
 Comments and empty lines are counted as ignored. Unsupported modifiers, malformed hostnames, scriptlets, procedural or extended CSS, unsafe selectors, and unsupported regex features are reported with source and line diagnostics. No unsupported syntax should be described as working. The compiler currently rejects more than 4,500 total rules or 900 regex rules; browser quotas and behavior can also vary. See [Chrome DNR](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest) and the [uBlock Origin Lite FAQ](<https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)>) for platform context.
 
-CSS comment delimiters are rejected in cosmetic selectors. A malformed rule such as `##.x/*` must not consume later valid generated rules; diagnostics retain its source and line. These checks are a bounded supported subset, not a complete CSS grammar implementation.
+Cosmetic selectors reject comment delimiters, unfinished escapes, CSS newline controls, unclosed quotes and unbalanced or crossed bracket/parenthesis tokens. The background parser tracks quote/escape state so supported quoted delimiters and escapes remain valid. A malformed selector must not consume later generated rules; diagnostics retain its source and line. These are bounded structural checks, not a complete CSS grammar implementation.
 
 The `ads` snapshot is the original BlahDNS Lite ABP file from `https://oooo.b-cdn.net/blahdns/lite_adblocker.txt`; it retains supported network syntax instead of being reduced to domains. The `farms` snapshot is a domain-only projection of Content Farm Terminator. Source URLs, revisions or content hashes, license notes, input/output SHA-256 and parser counts are recorded in `extension/lists/sources.json`; full inputs remain under `data/upstream/`.
 

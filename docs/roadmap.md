@@ -1,5 +1,16 @@
 # Roadmap
 
+## 0.2.2 prerelease gates
+
+| Area                 | Evidence                                                                                                                     | Status  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Selector structure   | Quotes, brackets, parentheses, escapes and CSS newline controls; positive quoted/escaped cases; strict-CSP browser rendering | Passed  |
+| Enabled proxy status | Permanent getState applied=true assertions for HTTP and SOCKS5 in all three browsers; actual routed requests                 | Passed  |
+| Quality and packages | 56 unit tests, 252 expectations; each browser 21 checks; source/archive integrity and repeat ZIP/XPI hashes                  | Passed  |
+| GitHub publication   | Exact-source CI and downloaded package verification                                                                          | Pending |
+
+See [0.2.2 acceptance output](evals/0.2.2/acceptance-output.md). Earlier releases remain available below.
+
 ## 0.2.1 prerelease gates
 
 | Area                 | Evidence                                                                                                                                                         | Status                 |

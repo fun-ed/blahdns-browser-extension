@@ -73,3 +73,7 @@ The owner requested System/Light/Dark UI, the BlahDNS Lite ABP default at `https
 ## 0.2.1 corrections
 
 The owner authorized fixes for CSS comment poisoning and mutating native status queries, followed by publication. Follow [the patch plan](docs/plans/004-css-read-only-status.md); retain earlier release evidence and tags.
+
+## 0.2.2 selector structure
+
+Continue the authorized fixes and publication with [the selector structure plan](docs/plans/005-selector-structure.md). Keep validation in the background parser and retain permanent enabled HTTP/SOCKS5 status checks.

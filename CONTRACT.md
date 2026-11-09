@@ -68,6 +68,8 @@ Responses are `{ok:true,...}` or `{ok:false,error}`. `getState` and `saveSetting
 
 `readPrivacy` and `readProxy` query native values and control priority without repairing mismatches. Chromium proxy status compares the actual PAC with the requested PAC. Apply operations remain in startup, settings saves and rollback; proxy-listener lifecycle remains in startup, apply and permission events. Native read errors are reported per section so the settings UI stays reachable. Cosmetic selectors containing CSS comment delimiters are unsupported and diagnosed before CSS generation.
 
+Cosmetic selectors must also have balanced quotes, brackets and parentheses, matching closer order, complete escapes, and no CSS newline controls. Quoted bracket/parenthesis characters and supported escaped tokens do not affect structural depth. Validation is performed in the background parser before CSS generation; it is not a complete CSS grammar parser.
+
 ## Module ownership boundaries
 
 - `core/settings.js`: defaults, settings validation, IDNA normalization, and domain-tree matching.

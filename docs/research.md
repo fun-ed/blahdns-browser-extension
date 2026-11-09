@@ -1,6 +1,6 @@
 # Research notes
 
-Research conclusions were checked against the linked sources. Current runtime evidence is recorded separately in [0.2.1 acceptance output](evals/0.2.1/acceptance-output.md); earlier release records are retained.
+Research conclusions were checked against the linked sources. Current runtime evidence is recorded separately in [0.2.2 acceptance output](evals/0.2.2/acceptance-output.md); earlier release records are retained.
 
 Sources checked: 2026-11-09.
 
@@ -52,4 +52,4 @@ Community commentary was checked only as anecdotal context. A [Reddit discussion
 
 ## Source limitations
 
-The repository has a compiler-only benchmark on Bun 1.4.4 / darwin arm64 with one warm-up and 20 measured iterations. See the current [benchmark output](evals/0.2.1/benchmark-output.json). It does not measure browser request latency or compare Rust/WASM or Node. Browser verification has its own [matrix and limitations](evals/0.2.1/acceptance-output.md).
+The repository has a compiler-only benchmark on Bun 1.4.4 / darwin arm64 with one warm-up and 20 measured iterations. See the current [benchmark output](evals/0.2.2/benchmark-output.json). It does not measure browser request latency or compare Rust/WASM or Node. Browser verification has its own [matrix and limitations](evals/0.2.2/acceptance-output.md).

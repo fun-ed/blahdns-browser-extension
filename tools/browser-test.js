@@ -546,12 +546,25 @@ try {
       record.checks.push(
         "settings UI save, file import, and serialized export payload",
       );
+      const unsafeSelectors = [
+        ".x/*",
+        ".x*/",
+        `.x[a="`,
+        `.x[a='`,
+        ".x(",
+        ".x[",
+        ".x\\",
+        ".x([)]",
+        ".x]",
+        ".x)",
+        `.x[a="\f"]`,
+      ];
       let settings = {
         ...original,
         adblock: false,
         contentFarms: false,
         statsEnabled: true,
-        customRules: `|http://127.0.0.1:${port}/blocked$xmlhttprequest\n|ws://127.0.0.1:${port}/socket$websocket\nlocalhost##.x/*\nlocalhost##.advert`,
+        customRules: `|http://127.0.0.1:${port}/blocked$xmlhttprequest\n|ws://127.0.0.1:${port}/socket$websocket\n${unsafeSelectors.map((selector) => `localhost##${selector}`).join("\n")}\nlocalhost##.advert`,
       };
       const save = async (next) => {
         const result = await send({ type: "saveSettings", settings: next });
@@ -560,9 +573,12 @@ try {
         return result;
       };
       const fixtureState = await save(settings);
-      assert.equal(fixtureState.report.unsupported.length, 1);
+      assert.equal(
+        fixtureState.report.unsupported.length,
+        unsafeSelectors.length,
+      );
       record.checks.push(
-        "unsafe CSS comment rejected while valid cosmetic rule remains active",
+        "unsafe CSS token structures rejected while valid cosmetic rule remains active",
       );
       console.log(`${name}: fixture rules applied`);
       const page = await browser.newPage();
@@ -733,6 +749,14 @@ try {
           bypass: [],
         },
       });
+      const httpStatus = await send({ type: "getState" });
+      assert.equal(httpStatus.settings.proxy.enabled, true);
+      assert.equal(
+        httpStatus.proxyStatus.applied,
+        true,
+        JSON.stringify(httpStatus.proxyStatus),
+      );
+      record.checks.push("enabled HTTP proxy getState confirms active routing");
       const proxyPage = await browser.newPage();
       proxyPage.setDefaultNavigationTimeout(10000);
       await proxyPage.goto("http://proxy-fixture.invalid/probe");
@@ -754,6 +778,16 @@ try {
           sites: ["socks-fixture.invalid"],
         },
       });
+      const socksStatus = await send({ type: "getState" });
+      assert.equal(socksStatus.settings.proxy.enabled, true);
+      assert.equal(
+        socksStatus.proxyStatus.applied,
+        true,
+        JSON.stringify(socksStatus.proxyStatus),
+      );
+      record.checks.push(
+        "enabled SOCKS5 proxy getState confirms active routing",
+      );
       await proxyPage.goto("http://socks-fixture.invalid/probe");
       assert.equal(
         await proxyPage.$eval("body", (el) => el.textContent.trim()),
