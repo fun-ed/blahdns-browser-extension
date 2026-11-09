@@ -1,0 +1,34 @@
+{
+  "repository": "fun-ed/blahdns-browser-extension",
+  "tag": "v0.2.0",
+  "status": "published-and-verified",
+  "sourceCommit": "7e0af3eb41b20b29857f46e77b0c50e50e9c7d22",
+  "url": "https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.0",
+  "prerelease": true,
+  "ciRun": "https://github.com/fun-ed/blahdns-browser-extension/actions/runs/42595908214",
+  "checksumFileMatches": true,
+  "verifiedAssets": [
+    {
+      "name": "blahdns-chromium-0.2.0.zip",
+      "bytes": 1032530,
+      "sha256": "c273924dacccbd00ed8873aa328d737f893d07096348de39de67dc1dda84a399",
+      "url": "https://github.com/fun-ed/blahdns-browser-extension/releases/download/v0.2.0/blahdns-chromium-0.2.0.zip"
+    },
+    {
+      "name": "blahdns-firefox-0.2.0.zip",
+      "bytes": 1032593,
+      "sha256": "e7b52325f84fdfca1ffd210e5139d0e02e994500e4a9c0c31005a7da510237a5",
+      "url": "https://github.com/fun-ed/blahdns-browser-extension/releases/download/v0.2.0/blahdns-firefox-0.2.0.zip"
+    },
+    {
+      "name": "blahdns-firefox-0.2.0.xpi",
+      "bytes": 1032593,
+      "sha256": "e7b52325f84fdfca1ffd210e5139d0e02e994500e4a9c0c31005a7da510237a5",
+      "url": "https://github.com/fun-ed/blahdns-browser-extension/releases/download/v0.2.0/blahdns-firefox-0.2.0.xpi"
+    }
+  ],
+  "previousTagPreserved": {
+    "tag": "v0.1.0",
+    "sourceCommit": "c78dd63a3876621a1ecd7703c077b3fa9b871452"
+  }
+}
