@@ -1,0 +1,92 @@
+{
+  "scope": "Unreleased local follow-up to published 0.2.6",
+  "checkedAt": "2026-11-09T20:14:18.091Z",
+  "baseCommit": "04a1315b9c0c7160cd831b1eb549f10ecb2d8c9c",
+  "sourceHashes": {
+    "extension/background.js": "112b93d917d9678820dff9322126a659ae0a12605223d234538d0d68a02e41e7",
+    "tests/background.test.js": "4ddabf54f82b2f03a3160aa6689e6c775d576931ef976fe098141d8d1cff0015",
+    "tools/browser-test.js": "7f7b52e1e4687e0309a81484dcbbe72921683cff717d58f6dd8753c9b53d58bb",
+    "CONTRACT.md": "fddc517eacdafab2f45cbc6ab3bd363cf4e7862732d65e6e6a97c805464b91ab"
+  },
+  "regressions": {
+    "beforeFix": {
+      "passed": 0,
+      "failed": 4
+    },
+    "afterFix": {
+      "passed": 4,
+      "failed": 0
+    },
+    "cases": [
+      "Firefox startup session failure",
+      "Chrome startup session failure",
+      "Chrome repeated loading events",
+      "Firefox repeated loading events"
+    ]
+  },
+  "gates": {
+    "format": "passed",
+    "lint": "passed",
+    "unit": {
+      "passed": 93,
+      "failed": 0,
+      "expectations": 572
+    },
+    "build": "passed",
+    "packageChecks": "passed",
+    "nativeParity": {
+      "status": "passed",
+      "cases": 53
+    },
+    "browsers": [
+      {
+        "browser": "chrome",
+        "version": "Chrome/157.0.8103.39",
+        "status": "passed",
+        "checks": 26
+      },
+      {
+        "browser": "brave",
+        "version": "Chrome/157.0.8103.39",
+        "status": "passed",
+        "checks": 26
+      },
+      {
+        "browser": "firefox",
+        "version": "firefox/160.0",
+        "status": "passed",
+        "checks": 25
+      }
+    ],
+    "firefoxWake": {
+      "status": "passed",
+      "proxy": "passed",
+      "blocking": "passed",
+      "scope": "Forced extension-process crash recovery in disposable profiles; natural idle is not covered."
+    },
+    "benchmark": {
+      "status": "passed",
+      "date": "2026-11-09T20:12:55.401Z",
+      "runtime": "Bun 1.4.4",
+      "platform": "darwin/arm64",
+      "inputBytes": 3112573,
+      "domains": 126170,
+      "dnrRules": 921,
+      "dnrJsonBytes": 3243605,
+      "iterations": 20,
+      "medianMs": 95.18799999999987,
+      "p95Ms": 107.30379200000016,
+      "rssBytes": 126468888,
+      "firefox": {
+        "indexMs": 14.329999999999927,
+        "requests": 10000,
+        "matched": 5000,
+        "medianRequestMs": 0.015041000000110216,
+        "p95RequestMs": 0.016541999999844847
+      },
+      "scope": "Compiler: one warm-up run; Firefox: one index build and 1000 warm-up requests followed by 10000 mixed matching/nonmatching image requests. Bun process only, no browser/network or Rust/WASM comparison. RSS covers the full process.",
+      "decision": "Chrome/Brave retain native DNR. Firefox uses indexed JavaScript matching for observable block decisions, with native DNR for headers/allowances. Reconsider Rust/WASM only after a measured browser runtime bottleneck. These results do not compare language performance."
+    }
+  },
+  "publication": "Not performed; existing public assets are not updated by this local follow-up"
+}

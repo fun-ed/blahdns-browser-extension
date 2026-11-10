@@ -1,0 +1,656 @@
+{
+  "date": "2026-11-10T03:52:30.099Z",
+  "version": "0.2.7",
+  "browser": "Chrome/157.0.8103.39",
+  "status": "passed",
+  "cases": 53,
+  "fixtures": [
+    {
+      "text": "||ads.example^$script\n||pre.fix$script\n/a/*/b.js$script\n/pixel^$image\nfile.gif|$image\n|https://left.example/ad$script\n/CaseOnly.$script,match-case\n/\\/track[0-9]+\\.gif/$image\n||[2001:db8::1]^$script",
+      "requests": [
+        ["https://ads.example/x", "script"],
+        ["https://a.ads.example/x", "script"],
+        ["https://badads.example/x", "script"],
+        ["https://ads.example.evil/x", "script"],
+        ["https://ads.example@evil.example/x", "script"],
+        ["https://evil.example/?x=https://ads.example/", "script"],
+        ["https://ads.example/x", "image"],
+        ["https://pre.fixture.test/", "script"],
+        ["https://xpre.fix.test/", "script"],
+        ["https://pre.fix@evil.test/", "script"],
+        ["https://w.example/a/x/y/b.js", "script"],
+        ["https://w.example/a/b.js", "script"],
+        ["https://w.example/pixel", "image"],
+        ["https://w.example/pixel?x", "image"],
+        ["https://w.example/pixel.js", "image"],
+        ["https://w.example/pixel%20", "image"],
+        ["https://w.example/file.gif", "image"],
+        ["https://w.example/file.gif?a", "image"],
+        ["https://left.example/ad.js", "script"],
+        ["https://evil.example/?x=https://left.example/ad.js", "script"],
+        ["https://w.example/CaseOnly.js", "script"],
+        ["https://w.example/caseonly.js", "script"],
+        ["https://w.example/track42.gif", "image"],
+        ["https://w.example/TRACK42.GIF", "image"],
+        ["https://w.example/trackx.gif", "image"],
+        ["https://[2001:db8::1]/ad.js", "script"],
+        ["https://[2001:db8::1]:8443/ad.js", "script"],
+        ["https://[2001:db8::2]/ad.js", "script"],
+        ["https://[2001:db8::1]/ad.png", "image"]
+      ]
+    },
+    {
+      "text": "|http$third-party,image\n|http$~third-party,script",
+      "requests": [
+        ["https://img.example.co.uk/x", "image", "https://www.example.co.uk/"],
+        ["https://a.co.uk/x", "image", "https://b.co.uk/"],
+        ["https://alice.github.io/x", "image", "https://bob.github.io/"],
+        ["https://cdn.alice.github.io/x", "image", "https://alice.github.io/"],
+        ["http://192.168.1.1/x", "image", "http://192.168.1.1:8080/"],
+        ["http://192.168.1.1/x", "image", "http://10.168.1.1/"],
+        ["http://[::1]/x", "image", "http://[::1]/"],
+        ["https://img.example.co.uk/x", "script", "https://www.example.co.uk/"],
+        ["https://a.co.uk/x", "script", "https://b.co.uk/"],
+        ["https://a.example/x", "image"]
+      ]
+    },
+    {
+      "text": "||ads.test^\n@@||ads.test^$script\n||ads.test/x.js$important,script\n@@||safe.ads.test^\n||restricted.test^$domain=site.test|~login.site.test",
+      "requests": [
+        ["https://ads.test/i.png", "image"],
+        ["https://ads.test/a.js", "script"],
+        ["https://ads.test/x.js", "script"],
+        ["https://safe.ads.test/i.png", "image"],
+        ["https://safe.ads.test/x.js", "script"],
+        ["https://restricted.test/x", "image", "https://site.test/"],
+        ["https://restricted.test/x", "image", "https://login.site.test/"],
+        ["https://restricted.test/x", "image", "https://other.test/"],
+        ["https://restricted.test/x", "image"]
+      ]
+    },
+    {
+      "text": "||blocked.test^",
+      "cleanUrls": true,
+      "requests": [
+        ["https://clean.test/x?utm_source=a&keep=1", "main_frame"],
+        ["https://clean.test/x?utm_source=a&sig=preserve", "main_frame"],
+        ["https://blocked.test/x?utm_source=a&sig=preserve", "main_frame"],
+        ["https://clean.test/x?UTM_SOURCE=a", "main_frame"],
+        ["https://clean.test/x?utm_source=a", "image"]
+      ]
+    }
+  ],
+  "results": [
+    {
+      "group": 0,
+      "url": "https://ads.example/x",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://a.ads.example/x",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://badads.example/x",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://ads.example.evil/x",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://ads.example@evil.example/x",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://evil.example/?x=https://ads.example/",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://ads.example/x",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://pre.fixture.test/",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 2,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://xpre.fix.test/",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://pre.fix@evil.test/",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/a/x/y/b.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 3,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/a/b.js",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/pixel",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 4,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/pixel?x",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 4,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/pixel.js",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/pixel%20",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/file.gif",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 5,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/file.gif?a",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://left.example/ad.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 6,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://evil.example/?x=https://left.example/ad.js",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/CaseOnly.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 7,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/caseonly.js",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/track42.gif",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 8,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/TRACK42.GIF",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 8,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://w.example/trackx.gif",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://[2001:db8::1]/ad.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 9,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://[2001:db8::1]:8443/ad.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 9,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 0,
+      "url": "https://[2001:db8::2]/ad.js",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 0,
+      "url": "https://[2001:db8::1]/ad.png",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 1,
+      "url": "https://img.example.co.uk/x",
+      "type": "image",
+      "originUrl": "https://www.example.co.uk/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 1,
+      "url": "https://a.co.uk/x",
+      "type": "image",
+      "originUrl": "https://b.co.uk/",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 1,
+      "url": "https://alice.github.io/x",
+      "type": "image",
+      "originUrl": "https://bob.github.io/",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 1,
+      "url": "https://cdn.alice.github.io/x",
+      "type": "image",
+      "originUrl": "https://alice.github.io/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 1,
+      "url": "http://192.168.1.1/x",
+      "type": "image",
+      "originUrl": "http://192.168.1.1:8080/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 1,
+      "url": "http://192.168.1.1/x",
+      "type": "image",
+      "originUrl": "http://10.168.1.1/",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 1,
+      "url": "http://[::1]/x",
+      "type": "image",
+      "originUrl": "http://[::1]/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 1,
+      "url": "https://img.example.co.uk/x",
+      "type": "script",
+      "originUrl": "https://www.example.co.uk/",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 2,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 1,
+      "url": "https://a.co.uk/x",
+      "type": "script",
+      "originUrl": "https://b.co.uk/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 1,
+      "url": "https://a.example/x",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://ads.test/i.png",
+      "type": "image",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://ads.test/a.js",
+      "type": "script",
+      "expected": null,
+      "actual": null,
+      "matches": [
+        {
+          "ruleId": 3,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://ads.test/x.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 4,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://safe.ads.test/i.png",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": [
+        {
+          "ruleId": 2,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://safe.ads.test/x.js",
+      "type": "script",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 4,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://restricted.test/x",
+      "type": "image",
+      "originUrl": "https://site.test/",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 5,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "url": "https://restricted.test/x",
+      "type": "image",
+      "originUrl": "https://login.site.test/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 2,
+      "url": "https://restricted.test/x",
+      "type": "image",
+      "originUrl": "https://other.test/",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 2,
+      "url": "https://restricted.test/x",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 3,
+      "url": "https://clean.test/x?utm_source=a&keep=1",
+      "type": "main_frame",
+      "expected": "redirect",
+      "actual": "redirect",
+      "matches": [
+        {
+          "ruleId": 3,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 3,
+      "url": "https://clean.test/x?utm_source=a&sig=preserve",
+      "type": "main_frame",
+      "expected": null,
+      "actual": null,
+      "matches": [
+        {
+          "ruleId": 2,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 3,
+      "url": "https://blocked.test/x?utm_source=a&sig=preserve",
+      "type": "main_frame",
+      "expected": "block",
+      "actual": "block",
+      "matches": [
+        {
+          "ruleId": 1,
+          "rulesetId": "_dynamic"
+        }
+      ]
+    },
+    {
+      "group": 3,
+      "url": "https://clean.test/x?UTM_SOURCE=a",
+      "type": "main_frame",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    },
+    {
+      "group": 3,
+      "url": "https://clean.test/x?utm_source=a",
+      "type": "image",
+      "expected": null,
+      "actual": null,
+      "matches": []
+    }
+  ]
+}

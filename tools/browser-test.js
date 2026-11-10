@@ -762,7 +762,7 @@ try {
       try {
         await activityPopup.waitForFunction(
           () => document.querySelector("#page-blocked")?.textContent === "2",
-          { timeout: 10000 },
+          { timeout: 10000, polling: 100 },
         );
       } catch (error) {
         const diagnostic = await activityPopup

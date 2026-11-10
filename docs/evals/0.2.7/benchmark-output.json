@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-10T03:53:22.301Z",
+  "runtime": "Bun 1.4.4",
+  "platform": "darwin/arm64",
+  "inputBytes": 3112573,
+  "domains": 126170,
+  "dnrRules": 921,
+  "dnrJsonBytes": 3243605,
+  "iterations": 20,
+  "medianMs": 104.73891600000002,
+  "p95Ms": 149.2215,
+  "rssBytes": 153486128,
+  "firefox": {
+    "indexMs": 14.431499999999687,
+    "requests": 10000,
+    "matched": 5000,
+    "medianRequestMs": 0.016541999999844847,
+    "p95RequestMs": 0.019083000000136963
+  },
+  "scope": "Compiler: one warm-up run; Firefox: one index build and 1000 warm-up requests followed by 10000 mixed matching/nonmatching image requests. Bun process only, no browser/network or Rust/WASM comparison. RSS covers the full process.",
+  "decision": "Chrome/Brave retain native DNR. Firefox uses indexed JavaScript matching for observable block decisions, with native DNR for headers/allowances. Reconsider Rust/WASM only after a measured browser runtime bottleneck. These results do not compare language performance."
+}

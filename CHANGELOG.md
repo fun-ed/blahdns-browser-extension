@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.7 - 2026-11-10
+
+- Continue startup filtering, privacy and proxy setup when temporary statistics cannot be cleared; report the cleanup failure instead of skipping configuration.
+- Preserve per-tab counts across repeated loading events during one navigation. Reset on a new main-frame request or loading after completion without an extra repeat flag.
+- Poll the background popup's DOM on a timer in browser tests. Add Firefox/Chrome startup-failure and repeated-loading regressions.
+
 ## 0.2.6 - 2026-11-10
 
 - Add popup opt-in, per-tab blocked/cleaned request counts and the ten most recent matching rules. Keep recent data in session storage and clear it on navigation, tab close, settings changes, opt-out, reset or restart.
@@ -42,4 +48,4 @@
 
 Initial preview with DNR filtering, supported hosts/ABP/CSS rules, site scopes, URL cleaning, native privacy controls, destination-scoped proxies, DoH diagnostics, settings import/export and local counters.
 
-See the [current verification record](docs/evals/0.2.6/acceptance-output.md) for tested versions and limits.
+See the [current verification record](docs/evals/0.2.7/acceptance-output.md) for tested versions and limits.

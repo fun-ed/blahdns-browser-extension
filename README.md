@@ -2,7 +2,7 @@
 
 A Manifest V3 privacy extension for Chrome, Brave and Firefox. It blocks ads, trackers and content farms, removes known tracking parameters, and provides optional native privacy and proxy controls. Settings, optional aggregate counters and temporary per-tab rule hits stay in your browser. No telemetry or browsing history is uploaded.
 
-Current release: [0.2.6 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.6). See [verification and limits](docs/evals/0.2.6/acceptance-output.md).
+Current release: [0.2.7 preview](https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.7). See [verification and limits](docs/evals/0.2.7/acceptance-output.md).
 
 ## Features
 
@@ -23,7 +23,7 @@ Download a package from [GitHub releases](https://github.com/fun-ed/blahdns-brow
 - Chrome/Brave: extract the Chromium ZIP, open `chrome://extensions`, enable Developer mode, then select **Load unpacked** and the folder containing `manifest.json`.
 - Firefox: open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, then the intact XPI or `manifest.json` from the extracted Firefox ZIP. The XPI is unsigned, and temporary installation ends at browser restart. Ordinary permanent installation requires Mozilla signing.
 
-The manifests declare Chrome 121 and Firefox 140 minimums. Tested versions are Chrome 157, Brave Beta on Chromium 157 and Firefox Developer Edition 160. Store packages and CRX are not provided.
+The manifests declare Chrome 121 and Firefox 140 minimums. Tested versions are Chrome 157, Brave Beta on Chromium 157 and Firefox Developer Edition 161. Store packages and CRX are not provided.
 
 In the popup, enable **Local statistics**, then reload the site. **Blocked requests** and **Recent rules** show this extension's actions; unrelated failures or other blockers are not counted. Recent data clears on navigation, tab close, settings changes, opt-out, reset or browser restart. Firefox uses the newly required `webRequest` and `webRequestBlocking` permissions; Chrome/Brave statistics require the unpacked installation above. No browser debug preference is required on Firefox.
 

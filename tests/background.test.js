@@ -4,7 +4,12 @@ import { DEFAULTS, DEFAULT_ADBLOCK_URL } from "../extension/core/settings.js";
 let instance = 0;
 async function backgroundFixture(
   storedSettings = structuredClone(DEFAULTS),
-  { chromium = false, permission = false, startupGate } = {},
+  {
+    chromium = false,
+    permission = false,
+    startupGate,
+    sessionFailure = false,
+  } = {},
 ) {
   const previousBrowser = globalThis.browser,
     previousFetch = globalThis.fetch;
@@ -100,6 +105,7 @@ async function backgroundFixture(
       session: {
         data: {},
         async get(key) {
+          if (sessionFailure) throw new Error("Fixture session failure");
           return structuredClone(
             key === null ? this.data : { [key]: this.data[key] },
           );
@@ -226,6 +232,48 @@ test("invalid stored settings leave the recovery UI reachable", async () => {
     f.restore();
   }
 });
+
+for (const chromium of [false, true]) {
+  test(`${chromium ? "Chrome" : "Firefox"} startup session failures do not skip filtering or privacy controls`, async () => {
+    const f = await backgroundFixture(
+      {
+        ...structuredClone(DEFAULTS),
+        privacy: { ...DEFAULTS.privacy, webrtc: "public" },
+      },
+      { chromium, sessionFailure: true },
+    );
+    try {
+      const state = await f.send({ type: "getState" });
+      if (chromium) {
+        expect(f.rules().some((rule) => rule.action.type === "block")).toBe(
+          true,
+        );
+      } else {
+        expect(
+          await f.api.webRequest.onBeforeRequest.emit({
+            url: "https://tracker.example/",
+            type: "image",
+            frameId: 0,
+            tabId: 7,
+            documentUrl: "https://page.example/",
+          }),
+        ).toEqual([{ cancel: true }]);
+      }
+      expect(state.capabilities.nativeFallback).toBe(false);
+      expect(
+        (await f.api.privacy.network.webRTCIPHandlingPolicy.get({})).value,
+      ).toBe("default_public_interface_only");
+      expect(state.error).toContain(
+        "temporary statistics could not be cleared",
+      );
+      expect(
+        (await f.send({ type: "getTabActivity", tabId: 7 })).activity,
+      ).toBeNull();
+    } finally {
+      f.restore();
+    }
+  });
+}
 test("CSS injection uses compiled selectors and the sender frame only", async () => {
   const f = await backgroundFixture({
     ...structuredClone(DEFAULTS),
@@ -646,6 +694,41 @@ test("Chrome records the native event that arrives before worker initialization 
   }
 });
 
+test("Chrome main-frame cleaning survives repeated loading events", async () => {
+  const f = await backgroundFixture(
+    { ...structuredClone(DEFAULTS), statsEnabled: true },
+    { chromium: true },
+  );
+  try {
+    await f.send({ type: "getState" });
+    const rule = f.rules().find((rule) => rule.action.type === "redirect");
+    await f.api.declarativeNetRequest.onRuleMatchedDebug.emit({
+      rule: { ruleId: rule.id },
+      request: {
+        tabId: 7,
+        type: "main_frame",
+        requestId: "nav-chrome",
+        url: "https://page.example/?utm_source=test",
+        incognito: false,
+      },
+    });
+    await f.api.tabs.onUpdated.emit(7, { status: "loading" });
+    await f.api.tabs.onUpdated.emit(7, { status: "loading" });
+    expect(
+      (await f.send({ type: "getTabActivity", tabId: 7 })).activity
+        .cleanedRequests,
+    ).toBe(1);
+    await f.api.tabs.onUpdated.emit(7, { status: "complete" });
+    await f.api.tabs.onUpdated.emit(7, { status: "loading" });
+    expect(
+      (await f.send({ type: "getTabActivity", tabId: 7 })).activity
+        .cleanedRequests,
+    ).toBe(0);
+  } finally {
+    f.restore();
+  }
+});
+
 test("Firefox startup matcher errors use native fallback and preserve it on failed repair", async () => {
   const f = await backgroundFixture({
     ...structuredClone(DEFAULTS),
@@ -706,6 +789,7 @@ test("main-frame cleaning survives either ordering of request and loading events
     expect(await f.api.webRequest.onBeforeRequest.emit(request)).toEqual([
       { redirectUrl: "https://page.example/?keep=1" },
     ]);
+    await f.api.tabs.onUpdated.emit(7, { status: "loading" });
     await f.api.tabs.onUpdated.emit(7, { status: "loading" });
     expect(
       (await f.send({ type: "getTabActivity", tabId: 7 })).activity

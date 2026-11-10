@@ -311,7 +311,11 @@ const ready = enqueue(async () => {
     const stored = await api.storage.local.get(["settings", "defaultList"]);
     current = validateSettings(stored.settings ?? current);
     settingsLoaded = true;
-    if (!current.statsEnabled) await activity.clearAll();
+    if (!current.statsEnabled)
+      await activity.clearAll().catch(() => {
+        lastError =
+          "Startup continued, but temporary statistics could not be cleared. Restart the browser to clear them.";
+      });
     defaultList = stored.defaultList
       ? validateDefaultList(stored.defaultList)
       : null;
@@ -484,26 +488,16 @@ function beginNavigation(tabId, requestId) {
   if (!Number.isInteger(tabId) || tabId < 0) return;
   const previous = navigations.get(tabId);
   if (requestId !== undefined && previous) {
-    if (previous.requestId === requestId) {
-      // Firefox sends another loading event when webRequest follows a redirect.
-      if (firefox && !previous.complete) previous.waitingForLoading = true;
-      return previous;
-    }
+    if (previous.requestId === requestId) return previous;
     if (!previous.complete && previous.requestId === undefined) {
       previous.requestId = requestId;
       return previous;
     }
-  } else if (
-    requestId === undefined &&
-    previous?.waitingForLoading &&
-    !previous.complete
-  ) {
-    previous.waitingForLoading = false;
+  } else if (requestId === undefined && previous && !previous.complete) {
     return previous;
   }
   const navigation = {
     requestId,
-    waitingForLoading: requestId !== undefined,
     complete: false,
   };
   navigations.set(tabId, navigation);
@@ -589,7 +583,6 @@ api.tabs.onUpdated.addListener((tabId, change) => {
     const navigation = navigations.get(tabId);
     if (navigation) {
       navigation.complete = true;
-      navigation.waitingForLoading = false;
     }
   }
 });

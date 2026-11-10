@@ -1,0 +1,34 @@
+{
+  "version": "0.2.7",
+  "status": "passed",
+  "scope": "Forced extension-process crash recovery in disposable profiles; natural idle is not covered.",
+  "proxy": {
+    "status": "passed",
+    "browser": "firefox/161.0",
+    "backgroundBeforeRequest": false,
+    "backgroundAfterRequest": true,
+    "proxyBody": "wake-proxy-fixture"
+  },
+  "blocking": {
+    "status": "passed",
+    "browser": "firefox/161.0",
+    "backgroundBeforeRequest": false,
+    "backgroundAfterRequest": true,
+    "sessionSurvivedWithoutWake": true,
+    "blockingRule": "|http://wake-fixture.invalid/blocked$document",
+    "blockedRequestsBeforePostCrash": 1,
+    "blockedRequestsAfterPostCrash": 2,
+    "tabActivityAfterPostCrash": {
+      "blockedRequests": 1,
+      "cleanedRequests": 0,
+      "recent": [
+        {
+          "ruleId": 1,
+          "action": "block",
+          "filter": "|http://wake-fixture.invalid/blocked",
+          "hits": 1
+        }
+      ]
+    }
+  }
+}
