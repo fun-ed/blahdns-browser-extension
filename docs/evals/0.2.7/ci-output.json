@@ -1,0 +1,27 @@
+{
+  "version": "0.2.7",
+  "sourceSha": "1491d3c1501674fead432c6606553242e0aba5f2",
+  "checkedAt": "2026-11-10T03:58:29.633Z",
+  "runs": [
+    {
+      "conclusion": "success",
+      "databaseId": 42752706984,
+      "event": "push",
+      "headBranch": "v0.2.7",
+      "headSha": "1491d3c1501674fead432c6606553242e0aba5f2",
+      "name": "checks",
+      "status": "completed",
+      "url": "https://github.com/fun-ed/blahdns-browser-extension/actions/runs/42752706984"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42752627221,
+      "event": "push",
+      "headBranch": "main",
+      "headSha": "1491d3c1501674fead432c6606553242e0aba5f2",
+      "name": "checks",
+      "status": "completed",
+      "url": "https://github.com/fun-ed/blahdns-browser-extension/actions/runs/42752627221"
+    }
+  ]
+}

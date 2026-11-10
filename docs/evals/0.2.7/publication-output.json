@@ -1,0 +1,44 @@
+{
+  "version": "0.2.7",
+  "checkedAt": "2026-11-10T03:58:29.633Z",
+  "releaseUrl": "https://github.com/fun-ed/blahdns-browser-extension/releases/tag/v0.2.7",
+  "prerelease": true,
+  "draft": false,
+  "sourceSha": "1491d3c1501674fead432c6606553242e0aba5f2",
+  "tagSha": "1491d3c1501674fead432c6606553242e0aba5f2",
+  "assets": [
+    {
+      "name": "blahdns-chromium-0.2.7.zip",
+      "bytes": 1133473,
+      "sha256": "a756c0584abbf5a42ae83ffc739052f6794db9867496eea58e15299c0c2bde4b",
+      "githubDigest": "sha256:a756c0584abbf5a42ae83ffc739052f6794db9867496eea58e15299c0c2bde4b",
+      "localBytesMatch": true
+    },
+    {
+      "name": "blahdns-firefox-0.2.7.xpi",
+      "bytes": 1133536,
+      "sha256": "0e2398136a3b1a1707909a81cf33c7bbfb2cdae60663b66a15efa0a26c3a3a7f",
+      "githubDigest": "sha256:0e2398136a3b1a1707909a81cf33c7bbfb2cdae60663b66a15efa0a26c3a3a7f",
+      "localBytesMatch": true
+    },
+    {
+      "name": "blahdns-firefox-0.2.7.zip",
+      "bytes": 1133536,
+      "sha256": "0e2398136a3b1a1707909a81cf33c7bbfb2cdae60663b66a15efa0a26c3a3a7f",
+      "githubDigest": "sha256:0e2398136a3b1a1707909a81cf33c7bbfb2cdae60663b66a15efa0a26c3a3a7f",
+      "localBytesMatch": true
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 277,
+      "sha256": "6b5131e462ea6874ffab5e82f8dc6408b45f7804c7f40f1707567fc499909cf9",
+      "githubDigest": "sha256:6b5131e462ea6874ffab5e82f8dc6408b45f7804c7f40f1707567fc499909cf9",
+      "localBytesMatch": true
+    }
+  ],
+  "downloadChecksumsPassed": true,
+  "firefoxZipXpiIdentical": true,
+  "previousTagsUnchanged": 8,
+  "previousRelease": "v0.2.6",
+  "previousAssetsUnchanged": 4
+}
